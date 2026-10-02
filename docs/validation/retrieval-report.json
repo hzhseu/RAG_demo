@@ -1,0 +1,609 @@
+{
+  "knowledge_version": "4da51429ee474f747ebe",
+  "recall_at_8": 1.0,
+  "target": 0.9,
+  "pass": true,
+  "cases": [
+    {
+      "question": "Alpha 标准保修期多长？",
+      "file": "01_产品与指标.pptx",
+      "page": 1,
+      "answer": "24个月",
+      "retrieval_pass": true,
+      "elapsed_seconds": 1.3250975000000835,
+      "hits": [
+        {
+          "file": "01_产品与指标.pptx",
+          "page": 1,
+          "score": 0.03278688524590164
+        },
+        {
+          "file": "02_流程与术语.pptx",
+          "page": 2,
+          "score": 0.03225806451612903
+        },
+        {
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "score": 0.031746031746031744
+        },
+        {
+          "file": "01_产品与指标.pptx",
+          "page": 3,
+          "score": 0.015625
+        },
+        {
+          "file": "02_流程与术语.pptx",
+          "page": 3,
+          "score": 0.015384615384615385
+        },
+        {
+          "file": "02_流程与术语.pptx",
+          "page": 1,
+          "score": 0.015151515151515152
+        },
+        {
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "score": 0.014925373134328358
+        },
+        {
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "score": 0.014705882352941176
+        }
+      ]
+    },
+    {
+      "question": "When does warranty begin?",
+      "file": "01_产品与指标.pptx",
+      "page": 1,
+      "answer": "acceptance",
+      "retrieval_pass": true,
+      "elapsed_seconds": 0.09340940000038245,
+      "hits": [
+        {
+          "file": "01_产品与指标.pptx",
+          "page": 1,
+          "score": 0.03278688524590164
+        },
+        {
+          "file": "02_流程与术语.pptx",
+          "page": 2,
+          "score": 0.03225806451612903
+        },
+        {
+          "file": "01_产品与指标.pptx",
+          "page": 3,
+          "score": 0.015873015873015872
+        },
+        {
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "score": 0.015625
+        },
+        {
+          "file": "02_流程与术语.pptx",
+          "page": 1,
+          "score": 0.015384615384615385
+        },
+        {
+          "file": "02_流程与术语.pptx",
+          "page": 3,
+          "score": 0.015151515151515152
+        },
+        {
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "score": 0.014925373134328358
+        },
+        {
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "score": 0.014705882352941176
+        }
+      ]
+    },
+    {
+      "question": "Beta 的保修期多长？",
+      "file": "01_产品与指标.pptx",
+      "page": 1,
+      "answer": "12 months",
+      "retrieval_pass": true,
+      "elapsed_seconds": 0.09771170000021812,
+      "hits": [
+        {
+          "file": "01_产品与指标.pptx",
+          "page": 1,
+          "score": 0.03278688524590164
+        },
+        {
+          "file": "02_流程与术语.pptx",
+          "page": 2,
+          "score": 0.03225806451612903
+        },
+        {
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "score": 0.031746031746031744
+        },
+        {
+          "file": "01_产品与指标.pptx",
+          "page": 3,
+          "score": 0.015625
+        },
+        {
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "score": 0.015384615384615385
+        },
+        {
+          "file": "02_流程与术语.pptx",
+          "page": 3,
+          "score": 0.015151515151515152
+        },
+        {
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "score": 0.014925373134328358
+        },
+        {
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "score": 0.014705882352941176
+        }
+      ]
+    },
+    {
+      "question": "What is Alpha revenue in EUR?",
+      "file": "01_产品与指标.pptx",
+      "page": 2,
+      "answer": "120.50 EUR",
+      "retrieval_pass": true,
+      "elapsed_seconds": 0.09301919999961683,
+      "hits": [
+        {
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "score": 0.03278688524590164
+        },
+        {
+          "file": "01_产品与指标.pptx",
+          "page": 1,
+          "score": 0.03200204813108039
+        },
+        {
+          "file": "02_流程与术语.pptx",
+          "page": 2,
+          "score": 0.03200204813108039
+        },
+        {
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "score": 0.031009615384615385
+        },
+        {
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "score": 0.031009615384615385
+        },
+        {
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "score": 0.030303030303030304
+        },
+        {
+          "file": "02_流程与术语.pptx",
+          "page": 1,
+          "score": 0.029850746268656716
+        },
+        {
+          "file": "01_产品与指标.pptx",
+          "page": 3,
+          "score": 0.014705882352941176
+        }
+      ]
+    },
+    {
+      "question": "Beta 收入是多少？",
+      "file": "01_产品与指标.pptx",
+      "page": 2,
+      "answer": "99.00 EUR",
+      "retrieval_pass": true,
+      "elapsed_seconds": 0.09613659999922675,
+      "hits": [
+        {
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "score": 0.03278688524590164
+        },
+        {
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "score": 0.031754032258064516
+        },
+        {
+          "file": "01_产品与指标.pptx",
+          "page": 1,
+          "score": 0.031754032258064516
+        },
+        {
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "score": 0.03125763125763126
+        },
+        {
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "score": 0.03125763125763126
+        },
+        {
+          "file": "02_流程与术语.pptx",
+          "page": 2,
+          "score": 0.015151515151515152
+        },
+        {
+          "file": "01_产品与指标.pptx",
+          "page": 3,
+          "score": 0.014925373134328358
+        },
+        {
+          "file": "02_流程与术语.pptx",
+          "page": 3,
+          "score": 0.014705882352941176
+        }
+      ]
+    },
+    {
+      "question": "Alpha 增长率是多少？",
+      "file": "01_产品与指标.pptx",
+      "page": 2,
+      "answer": "12.5%",
+      "retrieval_pass": true,
+      "elapsed_seconds": 0.10400320000007923,
+      "hits": [
+        {
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "score": 0.03278688524590164
+        },
+        {
+          "file": "02_流程与术语.pptx",
+          "page": 2,
+          "score": 0.03225806451612903
+        },
+        {
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "score": 0.03125763125763126
+        },
+        {
+          "file": "01_产品与指标.pptx",
+          "page": 1,
+          "score": 0.031024531024531024
+        },
+        {
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "score": 0.031009615384615385
+        },
+        {
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "score": 0.030776515151515152
+        },
+        {
+          "file": "01_产品与指标.pptx",
+          "page": 3,
+          "score": 0.014925373134328358
+        },
+        {
+          "file": "02_流程与术语.pptx",
+          "page": 3,
+          "score": 0.014705882352941176
+        }
+      ]
+    },
+    {
+      "question": "响应时间是多久？",
+      "file": "01_产品与指标.pptx",
+      "page": 3,
+      "answer": "4 hours",
+      "retrieval_pass": true,
+      "elapsed_seconds": 0.1008984000000055,
+      "hits": [
+        {
+          "file": "01_产品与指标.pptx",
+          "page": 3,
+          "score": 0.03278688524590164
+        },
+        {
+          "file": "01_产品与指标.pptx",
+          "page": 1,
+          "score": 0.016129032258064516
+        },
+        {
+          "file": "02_流程与术语.pptx",
+          "page": 2,
+          "score": 0.015873015873015872
+        },
+        {
+          "file": "02_流程与术语.pptx",
+          "page": 3,
+          "score": 0.015625
+        },
+        {
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "score": 0.015384615384615385
+        },
+        {
+          "file": "02_流程与术语.pptx",
+          "page": 1,
+          "score": 0.015151515151515152
+        },
+        {
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "score": 0.014925373134328358
+        },
+        {
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "score": 0.014705882352941176
+        }
+      ]
+    },
+    {
+      "question": "服务可用性是多少？",
+      "file": "01_产品与指标.pptx",
+      "page": 3,
+      "answer": "99.5%",
+      "retrieval_pass": true,
+      "elapsed_seconds": 0.09716229999958159,
+      "hits": [
+        {
+          "file": "01_产品与指标.pptx",
+          "page": 3,
+          "score": 0.03278688524590164
+        },
+        {
+          "file": "02_流程与术语.pptx",
+          "page": 3,
+          "score": 0.03225806451612903
+        },
+        {
+          "file": "01_产品与指标.pptx",
+          "page": 1,
+          "score": 0.015873015873015872
+        },
+        {
+          "file": "02_流程与术语.pptx",
+          "page": 2,
+          "score": 0.015625
+        },
+        {
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "score": 0.015384615384615385
+        },
+        {
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "score": 0.015151515151515152
+        },
+        {
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "score": 0.014925373134328358
+        },
+        {
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "score": 0.014705882352941176
+        }
+      ]
+    },
+    {
+      "question": "Who approves purchases above EUR 5000?",
+      "file": "02_流程与术语.pptx",
+      "page": 1,
+      "answer": "department manager",
+      "retrieval_pass": true,
+      "elapsed_seconds": 0.11387219999960507,
+      "hits": [
+        {
+          "file": "02_流程与术语.pptx",
+          "page": 1,
+          "score": 0.03278688524590164
+        },
+        {
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "score": 0.03200204813108039
+        },
+        {
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "score": 0.031754032258064516
+        },
+        {
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "score": 0.03125763125763126
+        },
+        {
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "score": 0.031009615384615385
+        },
+        {
+          "file": "01_产品与指标.pptx",
+          "page": 1,
+          "score": 0.015151515151515152
+        },
+        {
+          "file": "02_流程与术语.pptx",
+          "page": 2,
+          "score": 0.014925373134328358
+        },
+        {
+          "file": "02_流程与术语.pptx",
+          "page": 3,
+          "score": 0.014705882352941176
+        }
+      ]
+    },
+    {
+      "question": "SLA 是什么意思？",
+      "file": "02_流程与术语.pptx",
+      "page": 3,
+      "answer": "Service Level Agreement",
+      "retrieval_pass": true,
+      "elapsed_seconds": 0.08831779999945866,
+      "hits": [
+        {
+          "file": "02_流程与术语.pptx",
+          "page": 3,
+          "score": 0.03278688524590164
+        },
+        {
+          "file": "01_产品与指标.pptx",
+          "page": 3,
+          "score": 0.016129032258064516
+        },
+        {
+          "file": "01_产品与指标.pptx",
+          "page": 1,
+          "score": 0.015873015873015872
+        },
+        {
+          "file": "02_流程与术语.pptx",
+          "page": 2,
+          "score": 0.015625
+        },
+        {
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "score": 0.015384615384615385
+        },
+        {
+          "file": "02_流程与术语.pptx",
+          "page": 1,
+          "score": 0.015151515151515152
+        },
+        {
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "score": 0.014925373134328358
+        },
+        {
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "score": 0.014705882352941176
+        }
+      ]
+    },
+    {
+      "question": "2023 年 Alpha 保修期是多少？",
+      "file": "02_流程与术语.pptx",
+      "page": 2,
+      "answer": "18个月",
+      "retrieval_pass": true,
+      "elapsed_seconds": 0.1222340999993321,
+      "hits": [
+        {
+          "file": "02_流程与术语.pptx",
+          "page": 2,
+          "score": 0.03278688524590164
+        },
+        {
+          "file": "01_产品与指标.pptx",
+          "page": 1,
+          "score": 0.03225806451612903
+        },
+        {
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "score": 0.031746031746031744
+        },
+        {
+          "file": "01_产品与指标.pptx",
+          "page": 3,
+          "score": 0.015625
+        },
+        {
+          "file": "02_流程与术语.pptx",
+          "page": 3,
+          "score": 0.015384615384615385
+        },
+        {
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "score": 0.015151515151515152
+        },
+        {
+          "file": "02_流程与术语.pptx",
+          "page": 1,
+          "score": 0.014925373134328358
+        },
+        {
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "score": 0.014705882352941176
+        }
+      ]
+    },
+    {
+      "question": "审批采购的金额门槛是多少？",
+      "file": "02_流程与术语.pptx",
+      "page": 1,
+      "answer": "5000 EUR",
+      "retrieval_pass": true,
+      "elapsed_seconds": 0.10170319999997446,
+      "hits": [
+        {
+          "file": "02_流程与术语.pptx",
+          "page": 1,
+          "score": 0.03278688524590164
+        },
+        {
+          "file": "01_产品与指标.pptx",
+          "page": 1,
+          "score": 0.016129032258064516
+        },
+        {
+          "file": "02_流程与术语.pptx",
+          "page": 2,
+          "score": 0.015873015873015872
+        },
+        {
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "score": 0.015625
+        },
+        {
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "score": 0.015384615384615385
+        },
+        {
+          "file": "01_产品与指标.pptx",
+          "page": 3,
+          "score": 0.015151515151515152
+        },
+        {
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "score": 0.014925373134328358
+        },
+        {
+          "file": "02_流程与术语.pptx",
+          "page": 3,
+          "score": 0.014705882352941176
+        }
+      ]
+    }
+  ],
+  "answer_faithfulness": "Requires separate human evaluation; not inferred from retrieval scores"
+}

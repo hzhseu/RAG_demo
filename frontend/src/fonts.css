@@ -1,0 +1,8 @@
+@font-face {
+  font-family: "Nord CJK";
+  src: url("/fonts/NotoSansCJKsc-Regular.otf") format("opentype");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+:root { font-family: "Segoe UI", "Microsoft YaHei", "Nord CJK", sans-serif; }

@@ -1,0 +1,678 @@
+[
+  {
+    "scope": "backend and development environment",
+    "name": "altgraph",
+    "version": "0.17.5",
+    "declared_license": "MIT",
+    "notices": [
+      "python/altgraph-0.17.5/LICENSE",
+      "python/altgraph-0.17.5/METADATA"
+    ]
+  },
+  {
+    "scope": "backend and development environment",
+    "name": "annotated-doc",
+    "version": "0.0.5",
+    "declared_license": "MIT",
+    "notices": [
+      "python/annotated-doc-0.0.5/METADATA",
+      "python/annotated-doc-0.0.5/licenses/LICENSE"
+    ]
+  },
+  {
+    "scope": "backend and development environment",
+    "name": "annotated-types",
+    "version": "0.8.0",
+    "declared_license": "MIT",
+    "notices": [
+      "python/annotated-types-0.8.0/METADATA",
+      "python/annotated-types-0.8.0/licenses/LICENSE"
+    ]
+  },
+  {
+    "scope": "backend and development environment",
+    "name": "anyio",
+    "version": "4.15.1",
+    "declared_license": "MIT",
+    "notices": [
+      "python/anyio-4.15.1/METADATA",
+      "python/anyio-4.15.1/licenses/LICENSE"
+    ]
+  },
+  {
+    "scope": "backend and development environment",
+    "name": "certifi",
+    "version": "2026.7.22",
+    "declared_license": "MPL-2.0",
+    "notices": [
+      "python/certifi-2026.7.22/METADATA",
+      "python/certifi-2026.7.22/licenses/LICENSE"
+    ]
+  },
+  {
+    "scope": "backend and development environment",
+    "name": "click",
+    "version": "8.5.0",
+    "declared_license": "BSD-3-Clause",
+    "notices": [
+      "python/click-8.5.0/METADATA",
+      "python/click-8.5.0/licenses/LICENSE.txt"
+    ]
+  },
+  {
+    "scope": "backend and development environment",
+    "name": "colorama",
+    "version": "0.4.6",
+    "declared_license": null,
+    "notices": [
+      "python/colorama-0.4.6/METADATA",
+      "python/colorama-0.4.6/licenses/LICENSE.txt"
+    ]
+  },
+  {
+    "scope": "backend and development environment",
+    "name": "fastapi",
+    "version": "0.142.2",
+    "declared_license": "MIT",
+    "notices": [
+      "python/fastapi-0.142.2/METADATA",
+      "python/fastapi-0.142.2/licenses/LICENSE"
+    ]
+  },
+  {
+    "scope": "backend and development environment",
+    "name": "h11",
+    "version": "0.16.0",
+    "declared_license": "MIT",
+    "notices": [
+      "python/h11-0.16.0/METADATA",
+      "python/h11-0.16.0/licenses/LICENSE.txt"
+    ]
+  },
+  {
+    "scope": "backend and development environment",
+    "name": "httpcore",
+    "version": "1.0.9",
+    "declared_license": "BSD-3-Clause",
+    "notices": [
+      "python/httpcore-1.0.9/METADATA",
+      "python/httpcore-1.0.9/licenses/LICENSE.md"
+    ]
+  },
+  {
+    "scope": "backend and development environment",
+    "name": "httpcore2",
+    "version": "2.13.1",
+    "declared_license": "BSD-3-Clause",
+    "notices": [
+      "python/httpcore2-2.13.1/METADATA",
+      "python/httpcore2-2.13.1/licenses/LICENSE.md"
+    ]
+  },
+  {
+    "scope": "backend and development environment",
+    "name": "httpx",
+    "version": "0.28.1",
+    "declared_license": "BSD-3-Clause",
+    "notices": [
+      "python/httpx-0.28.1/METADATA",
+      "python/httpx-0.28.1/licenses/LICENSE.md"
+    ]
+  },
+  {
+    "scope": "backend and development environment",
+    "name": "httpx2",
+    "version": "2.13.1",
+    "declared_license": "BSD-3-Clause",
+    "notices": [
+      "python/httpx2-2.13.1/METADATA",
+      "python/httpx2-2.13.1/licenses/LICENSE.md"
+    ]
+  },
+  {
+    "scope": "backend and development environment",
+    "name": "idna",
+    "version": "3.20",
+    "declared_license": "BSD-3-Clause",
+    "notices": [
+      "python/idna-3.20/METADATA",
+      "python/idna-3.20/licenses/LICENSE.md"
+    ]
+  },
+  {
+    "scope": "backend and development environment",
+    "name": "iniconfig",
+    "version": "2.3.0",
+    "declared_license": "MIT",
+    "notices": [
+      "python/iniconfig-2.3.0/METADATA",
+      "python/iniconfig-2.3.0/licenses/LICENSE"
+    ]
+  },
+  {
+    "scope": "backend and development environment",
+    "name": "lxml",
+    "version": "6.1.3",
+    "declared_license": "BSD-3-Clause",
+    "notices": [
+      "python/lxml-6.1.3/METADATA",
+      "python/lxml-6.1.3/licenses/LICENSE.txt",
+      "python/lxml-6.1.3/licenses/LICENSES.txt"
+    ]
+  },
+  {
+    "scope": "backend and development environment",
+    "name": "numpy",
+    "version": "2.5.3",
+    "declared_license": "BSD-3-Clause AND 0BSD AND MIT AND Zlib AND CC0-1.0",
+    "notices": [
+      "python/numpy-2.5.3/METADATA",
+      "python/numpy-2.5.3/licenses/LICENSE.txt",
+      "python/numpy-2.5.3/licenses/numpy/_core/include/numpy/libdivide/LICENSE.txt",
+      "python/numpy-2.5.3/licenses/numpy/_core/src/common/pythoncapi-compat/COPYING",
+      "python/numpy-2.5.3/licenses/numpy/_core/src/highway/LICENSE",
+      "python/numpy-2.5.3/licenses/numpy/_core/src/multiarray/dragon4_LICENSE.txt",
+      "python/numpy-2.5.3/licenses/numpy/_core/src/npysort/x86-simd-sort/LICENSE.md",
+      "python/numpy-2.5.3/licenses/numpy/_core/src/umath/svml/LICENSE",
+      "python/numpy-2.5.3/licenses/numpy/fft/pocketfft/LICENSE.md",
+      "python/numpy-2.5.3/licenses/numpy/linalg/lapack_lite/LICENSE.txt",
+      "python/numpy-2.5.3/licenses/numpy/ma/LICENSE",
+      "python/numpy-2.5.3/licenses/numpy/random/LICENSE.md",
+      "python/numpy-2.5.3/licenses/numpy/random/src/distributions/LICENSE.md",
+      "python/numpy-2.5.3/licenses/numpy/random/src/mt19937/LICENSE.md",
+      "python/numpy-2.5.3/licenses/numpy/random/src/pcg64/LICENSE.md",
+      "python/numpy-2.5.3/licenses/numpy/random/src/philox/LICENSE.md",
+      "python/numpy-2.5.3/licenses/numpy/random/src/sfc64/LICENSE.md",
+      "python/numpy-2.5.3/licenses/numpy/random/src/splitmix64/LICENSE.md"
+    ]
+  },
+  {
+    "scope": "backend and development environment",
+    "name": "opentelemetry-api",
+    "version": "1.45.0",
+    "declared_license": "Apache-2.0",
+    "notices": [
+      "python/opentelemetry-api-1.45.0/METADATA",
+      "python/opentelemetry-api-1.45.0/licenses/LICENSE"
+    ]
+  },
+  {
+    "scope": "backend and development environment",
+    "name": "packaging",
+    "version": "26.3",
+    "declared_license": "Apache-2.0 OR BSD-2-Clause",
+    "notices": [
+      "python/packaging-26.3/METADATA",
+      "python/packaging-26.3/licenses/LICENSE",
+      "python/packaging-26.3/licenses/LICENSE.APACHE",
+      "python/packaging-26.3/licenses/LICENSE.BSD"
+    ]
+  },
+  {
+    "scope": "backend and development environment",
+    "name": "pefile",
+    "version": "2024.8.26",
+    "declared_license": "MIT",
+    "notices": [
+      "python/pefile-2024.8.26/LICENSE",
+      "python/pefile-2024.8.26/METADATA"
+    ]
+  },
+  {
+    "scope": "backend and development environment",
+    "name": "pillow",
+    "version": "12.3.0",
+    "declared_license": "MIT-CMU",
+    "notices": [
+      "python/pillow-12.3.0/METADATA",
+      "python/pillow-12.3.0/licenses/LICENSE"
+    ]
+  },
+  {
+    "scope": "backend and development environment",
+    "name": "pip",
+    "version": "25.2",
+    "declared_license": "MIT",
+    "notices": [
+      "python/pip-25.2/METADATA",
+      "python/pip-25.2/licenses/LICENSE.txt",
+      "python/pip-25.2/licenses/src/pip/_vendor/cachecontrol/LICENSE.txt",
+      "python/pip-25.2/licenses/src/pip/_vendor/certifi/LICENSE",
+      "python/pip-25.2/licenses/src/pip/_vendor/dependency_groups/LICENSE.txt",
+      "python/pip-25.2/licenses/src/pip/_vendor/distlib/LICENSE.txt",
+      "python/pip-25.2/licenses/src/pip/_vendor/distro/LICENSE",
+      "python/pip-25.2/licenses/src/pip/_vendor/idna/LICENSE.md",
+      "python/pip-25.2/licenses/src/pip/_vendor/msgpack/COPYING",
+      "python/pip-25.2/licenses/src/pip/_vendor/packaging/LICENSE",
+      "python/pip-25.2/licenses/src/pip/_vendor/packaging/LICENSE.APACHE",
+      "python/pip-25.2/licenses/src/pip/_vendor/packaging/LICENSE.BSD",
+      "python/pip-25.2/licenses/src/pip/_vendor/pkg_resources/LICENSE",
+      "python/pip-25.2/licenses/src/pip/_vendor/platformdirs/LICENSE",
+      "python/pip-25.2/licenses/src/pip/_vendor/pygments/LICENSE",
+      "python/pip-25.2/licenses/src/pip/_vendor/pyproject_hooks/LICENSE",
+      "python/pip-25.2/licenses/src/pip/_vendor/requests/LICENSE",
+      "python/pip-25.2/licenses/src/pip/_vendor/resolvelib/LICENSE",
+      "python/pip-25.2/licenses/src/pip/_vendor/rich/LICENSE",
+      "python/pip-25.2/licenses/src/pip/_vendor/tomli/LICENSE",
+      "python/pip-25.2/licenses/src/pip/_vendor/tomli/LICENSE-HEADER",
+      "python/pip-25.2/licenses/src/pip/_vendor/tomli_w/LICENSE",
+      "python/pip-25.2/licenses/src/pip/_vendor/truststore/LICENSE",
+      "python/pip-25.2/licenses/src/pip/_vendor/urllib3/LICENSE.txt"
+    ]
+  },
+  {
+    "scope": "backend and development environment",
+    "name": "pluggy",
+    "version": "1.6.0",
+    "declared_license": "MIT",
+    "notices": [
+      "python/pluggy-1.6.0/METADATA",
+      "python/pluggy-1.6.0/licenses/LICENSE"
+    ]
+  },
+  {
+    "scope": "backend and development environment",
+    "name": "psutil",
+    "version": "7.2.2",
+    "declared_license": "BSD-3-Clause",
+    "notices": [
+      "python/psutil-7.2.2/LICENSE",
+      "python/psutil-7.2.2/METADATA"
+    ]
+  },
+  {
+    "scope": "backend and development environment",
+    "name": "pydantic",
+    "version": "2.13.5",
+    "declared_license": "MIT",
+    "notices": [
+      "python/pydantic-2.13.5/METADATA",
+      "python/pydantic-2.13.5/licenses/LICENSE"
+    ]
+  },
+  {
+    "scope": "backend and development environment",
+    "name": "pydantic_core",
+    "version": "2.46.5",
+    "declared_license": "MIT",
+    "notices": [
+      "python/pydantic_core-2.46.5/METADATA",
+      "python/pydantic_core-2.46.5/licenses/LICENSE"
+    ]
+  },
+  {
+    "scope": "backend and development environment",
+    "name": "Pygments",
+    "version": "2.21.0",
+    "declared_license": "BSD-2-Clause",
+    "notices": [
+      "python/Pygments-2.21.0/METADATA",
+      "python/Pygments-2.21.0/licenses/LICENSE"
+    ]
+  },
+  {
+    "scope": "backend and development environment",
+    "name": "pyinstaller",
+    "version": "6.22.3",
+    "declared_license": "GPLv2-or-later with a special exception which allows to use PyInstaller to build and distribute non-free programs (including commercial ones)",
+    "notices": [
+      "python/pyinstaller-6.22.3/METADATA",
+      "python/pyinstaller-6.22.3/licenses/COPYING.txt"
+    ]
+  },
+  {
+    "scope": "backend and development environment",
+    "name": "pyinstaller-hooks-contrib",
+    "version": "2026.8",
+    "declared_license": null,
+    "notices": [
+      "python/pyinstaller-hooks-contrib-2026.8/METADATA",
+      "python/pyinstaller-hooks-contrib-2026.8/licenses/LICENSE"
+    ]
+  },
+  {
+    "scope": "backend and development environment",
+    "name": "pypdf",
+    "version": "6.19.0",
+    "declared_license": "BSD-3-Clause",
+    "notices": [
+      "python/pypdf-6.19.0/METADATA",
+      "python/pypdf-6.19.0/licenses/LICENSE"
+    ]
+  },
+  {
+    "scope": "backend and development environment",
+    "name": "pytest",
+    "version": "9.1.1",
+    "declared_license": "MIT",
+    "notices": [
+      "python/pytest-9.1.1/METADATA",
+      "python/pytest-9.1.1/licenses/LICENSE"
+    ]
+  },
+  {
+    "scope": "backend and development environment",
+    "name": "python-pptx",
+    "version": "1.0.2",
+    "declared_license": "MIT",
+    "notices": [
+      "python/python-pptx-1.0.2/LICENSE",
+      "python/python-pptx-1.0.2/METADATA"
+    ]
+  },
+  {
+    "scope": "backend and development environment",
+    "name": "pywin32-ctypes",
+    "version": "0.2.3",
+    "declared_license": "BSD-3-Clause",
+    "notices": [
+      "python/pywin32-ctypes-0.2.3/LICENSE.txt",
+      "python/pywin32-ctypes-0.2.3/METADATA"
+    ]
+  },
+  {
+    "scope": "backend and development environment",
+    "name": "setuptools",
+    "version": "84.0.0",
+    "declared_license": "MIT",
+    "notices": [
+      "python/setuptools-84.0.0/METADATA",
+      "python/setuptools-84.0.0/licenses/LICENSE",
+      "python/setuptools-84.0.0/_vendor/autocommand-2.2.2.dist-info/LICENSE",
+      "python/setuptools-84.0.0/_vendor/autocommand-2.2.2.dist-info/METADATA",
+      "python/setuptools-84.0.0/_vendor/backports.tarfile-1.2.0.dist-info/LICENSE",
+      "python/setuptools-84.0.0/_vendor/backports.tarfile-1.2.0.dist-info/METADATA",
+      "python/setuptools-84.0.0/_vendor/importlib_metadata-8.7.1.dist-info/METADATA",
+      "python/setuptools-84.0.0/_vendor/importlib_metadata-8.7.1.dist-info/licenses/LICENSE",
+      "python/setuptools-84.0.0/_vendor/jaraco.text-4.0.0.dist-info/LICENSE",
+      "python/setuptools-84.0.0/_vendor/jaraco.text-4.0.0.dist-info/METADATA",
+      "python/setuptools-84.0.0/_vendor/jaraco_context-6.1.0.dist-info/METADATA",
+      "python/setuptools-84.0.0/_vendor/jaraco_context-6.1.0.dist-info/licenses/LICENSE",
+      "python/setuptools-84.0.0/_vendor/jaraco_functools-4.4.0.dist-info/METADATA",
+      "python/setuptools-84.0.0/_vendor/jaraco_functools-4.4.0.dist-info/licenses/LICENSE",
+      "python/setuptools-84.0.0/_vendor/more_itertools-10.8.0.dist-info/METADATA",
+      "python/setuptools-84.0.0/_vendor/more_itertools-10.8.0.dist-info/licenses/LICENSE",
+      "python/setuptools-84.0.0/_vendor/packaging-26.0.dist-info/METADATA",
+      "python/setuptools-84.0.0/_vendor/packaging-26.0.dist-info/licenses/LICENSE",
+      "python/setuptools-84.0.0/_vendor/packaging-26.0.dist-info/licenses/LICENSE.APACHE",
+      "python/setuptools-84.0.0/_vendor/packaging-26.0.dist-info/licenses/LICENSE.BSD",
+      "python/setuptools-84.0.0/_vendor/platformdirs-4.4.0.dist-info/METADATA",
+      "python/setuptools-84.0.0/_vendor/platformdirs-4.4.0.dist-info/licenses/LICENSE",
+      "python/setuptools-84.0.0/_vendor/tomli-2.4.0.dist-info/METADATA",
+      "python/setuptools-84.0.0/_vendor/tomli-2.4.0.dist-info/licenses/LICENSE",
+      "python/setuptools-84.0.0/_vendor/wheel-0.46.3.dist-info/METADATA",
+      "python/setuptools-84.0.0/_vendor/wheel-0.46.3.dist-info/licenses/LICENSE.txt",
+      "python/setuptools-84.0.0/_vendor/zipp-3.23.0.dist-info/METADATA",
+      "python/setuptools-84.0.0/_vendor/zipp-3.23.0.dist-info/licenses/LICENSE"
+    ]
+  },
+  {
+    "scope": "backend and development environment",
+    "name": "starlette",
+    "version": "1.7.0",
+    "declared_license": "BSD-3-Clause",
+    "notices": [
+      "python/starlette-1.7.0/METADATA",
+      "python/starlette-1.7.0/licenses/LICENSE.md"
+    ]
+  },
+  {
+    "scope": "backend and development environment",
+    "name": "truststore",
+    "version": "0.10.4",
+    "declared_license": "MIT",
+    "notices": [
+      "python/truststore-0.10.4/METADATA",
+      "python/truststore-0.10.4/licenses/LICENSE"
+    ]
+  },
+  {
+    "scope": "backend and development environment",
+    "name": "typing_extensions",
+    "version": "4.16.0",
+    "declared_license": "PSF-2.0",
+    "notices": [
+      "python/typing_extensions-4.16.0/METADATA",
+      "python/typing_extensions-4.16.0/licenses/LICENSE"
+    ]
+  },
+  {
+    "scope": "backend and development environment",
+    "name": "typing-inspection",
+    "version": "0.4.4",
+    "declared_license": "MIT",
+    "notices": [
+      "python/typing-inspection-0.4.4/METADATA",
+      "python/typing-inspection-0.4.4/licenses/LICENSE"
+    ]
+  },
+  {
+    "scope": "backend and development environment",
+    "name": "uvicorn",
+    "version": "0.54.0",
+    "declared_license": "BSD-3-Clause",
+    "notices": [
+      "python/uvicorn-0.54.0/METADATA",
+      "python/uvicorn-0.54.0/licenses/LICENSE.md"
+    ]
+  },
+  {
+    "scope": "backend and development environment",
+    "name": "xlsxwriter",
+    "version": "3.2.9",
+    "declared_license": "BSD-2-Clause",
+    "notices": [
+      "python/xlsxwriter-3.2.9/LICENSE.txt",
+      "python/xlsxwriter-3.2.9/METADATA"
+    ]
+  },
+  {
+    "scope": "frontend and build tools",
+    "name": "csstype",
+    "version": "3.2.3",
+    "declared_license": "MIT",
+    "notices": [
+      "javascript/csstype-3.2.3/LICENSE"
+    ]
+  },
+  {
+    "scope": "frontend and build tools",
+    "name": "esbuild",
+    "version": "0.25.12",
+    "declared_license": "MIT",
+    "notices": [
+      "javascript/esbuild-0.25.12/LICENSE.md"
+    ]
+  },
+  {
+    "scope": "frontend and build tools",
+    "name": "fdir",
+    "version": "6.5.0",
+    "declared_license": "MIT",
+    "notices": [
+      "javascript/fdir-6.5.0/LICENSE"
+    ]
+  },
+  {
+    "scope": "frontend and build tools",
+    "name": "picomatch",
+    "version": "4.0.7",
+    "declared_license": "MIT",
+    "notices": [
+      "javascript/picomatch-4.0.7/LICENSE"
+    ]
+  },
+  {
+    "scope": "frontend and build tools",
+    "name": "nanoid",
+    "version": "3.3.19",
+    "declared_license": "MIT",
+    "notices": [
+      "javascript/nanoid-3.3.19/LICENSE"
+    ]
+  },
+  {
+    "scope": "frontend and build tools",
+    "name": "pdfjs-dist",
+    "version": "5.4.296",
+    "declared_license": "Apache-2.0",
+    "notices": [
+      "javascript/pdfjs-dist-5.4.296/LICENSE"
+    ]
+  },
+  {
+    "scope": "frontend and build tools",
+    "name": "picocolors",
+    "version": "1.1.1",
+    "declared_license": "ISC",
+    "notices": [
+      "javascript/picocolors-1.1.1/LICENSE"
+    ]
+  },
+  {
+    "scope": "frontend and build tools",
+    "name": "postcss",
+    "version": "8.5.28",
+    "declared_license": "MIT",
+    "notices": [
+      "javascript/postcss-8.5.28/LICENSE"
+    ]
+  },
+  {
+    "scope": "frontend and build tools",
+    "name": "source-map-js",
+    "version": "1.2.2",
+    "declared_license": "BSD-3-Clause",
+    "notices": [
+      "javascript/source-map-js-1.2.2/LICENSE"
+    ]
+  },
+  {
+    "scope": "frontend and build tools",
+    "name": "react",
+    "version": "19.2.0",
+    "declared_license": "MIT",
+    "notices": [
+      "javascript/react-19.2.0/LICENSE"
+    ]
+  },
+  {
+    "scope": "frontend and build tools",
+    "name": "react-dom",
+    "version": "19.2.0",
+    "declared_license": "MIT",
+    "notices": [
+      "javascript/react-dom-19.2.0/LICENSE"
+    ]
+  },
+  {
+    "scope": "frontend and build tools",
+    "name": "scheduler",
+    "version": "0.27.0",
+    "declared_license": "MIT",
+    "notices": [
+      "javascript/scheduler-0.27.0/LICENSE"
+    ]
+  },
+  {
+    "scope": "frontend and build tools",
+    "name": "rollup",
+    "version": "4.63.5",
+    "declared_license": "MIT",
+    "notices": [
+      "javascript/rollup-4.63.5/LICENSE.md"
+    ]
+  },
+  {
+    "scope": "frontend and build tools",
+    "name": "tinyglobby",
+    "version": "0.2.17",
+    "declared_license": "MIT",
+    "notices": [
+      "javascript/tinyglobby-0.2.17/LICENSE"
+    ]
+  },
+  {
+    "scope": "frontend and build tools",
+    "name": "typescript",
+    "version": "5.9.3",
+    "declared_license": "Apache-2.0",
+    "notices": [
+      "javascript/typescript-5.9.3/LICENSE.txt",
+      "javascript/typescript-5.9.3/ThirdPartyNoticeText.txt"
+    ]
+  },
+  {
+    "scope": "frontend and build tools",
+    "name": "vite",
+    "version": "7.2.2",
+    "declared_license": "MIT",
+    "notices": [
+      "javascript/vite-7.2.2/LICENSE.md"
+    ]
+  },
+  {
+    "scope": "frontend and build tools",
+    "name": "@esbuild/win32-x64",
+    "version": "0.25.12",
+    "declared_license": "MIT",
+    "notices": []
+  },
+  {
+    "scope": "frontend and build tools",
+    "name": "@napi-rs/canvas-win32-x64-msvc",
+    "version": "0.1.100",
+    "declared_license": "MIT",
+    "notices": []
+  },
+  {
+    "scope": "frontend and build tools",
+    "name": "@napi-rs/canvas",
+    "version": "0.1.100",
+    "declared_license": "MIT",
+    "notices": [
+      "javascript/@napi-rs_canvas-0.1.100/LICENSE"
+    ]
+  },
+  {
+    "scope": "frontend and build tools",
+    "name": "@rollup/rollup-win32-x64-gnu",
+    "version": "4.63.5",
+    "declared_license": "MIT",
+    "notices": []
+  },
+  {
+    "scope": "frontend and build tools",
+    "name": "@rollup/rollup-win32-x64-msvc",
+    "version": "4.63.5",
+    "declared_license": "MIT",
+    "notices": []
+  },
+  {
+    "scope": "frontend and build tools",
+    "name": "@types/estree",
+    "version": "1.0.9",
+    "declared_license": "MIT",
+    "notices": [
+      "javascript/@types_estree-1.0.9/LICENSE"
+    ]
+  },
+  {
+    "scope": "frontend and build tools",
+    "name": "@types/react",
+    "version": "19.2.2",
+    "declared_license": "MIT",
+    "notices": [
+      "javascript/@types_react-19.2.2/LICENSE"
+    ]
+  },
+  {
+    "scope": "frontend and build tools",
+    "name": "@types/react-dom",
+    "version": "19.2.2",
+    "declared_license": "MIT",
+    "notices": [
+      "javascript/@types_react-dom-19.2.2/LICENSE"
+    ]
+  }
+]

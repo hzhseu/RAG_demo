@@ -1,0 +1,47 @@
+# Python environments, bytecode and tool caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+pytest-cache-files-*/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# JavaScript dependencies and generated frontend assets
+node_modules/
+.pnpm-store/
+.vite/
+*.tsbuildinfo
+/frontend/dist/
+
+# Build outputs, downloaded runtimes and generated knowledge bases
+/dist/
+/build/
+/runtime/
+/runtime.json
+*.ragkb
+/artifacts/
+
+# Local environment configuration (keep shareable examples)
+.env
+.env.*
+!.env.example
+!.env.sample
+!.env.template
+
+# Temporary files, logs and local editor/OS state
+.tmp/
+*.log
+*.tmp
+*.swp
+*.swo
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+Desktop.ini

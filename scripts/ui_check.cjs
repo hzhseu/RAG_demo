@@ -1,0 +1,30 @@
+// Local test server only. No simulated engine is shipped in production.
+const { chromium } = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
+const fs = require('node:fs');
+(async()=>{
+  const browser = await chromium.launch({headless:true,channel:'msedge'});
+  const page = await browser.newPage({viewport:{width:1440,height:1000}});
+  const errors=[]; page.on('pageerror', e=>errors.push(e.message));
+  await page.goto('http://127.0.0.1:8765/#token=ui-test-only');
+  await page.getByText('北境 · 产品与运营知识库',{exact:true}).waitFor();
+  await page.screenshot({path:'artifacts/ui-home.png',fullPage:true});
+  await page.getByRole('textbox',{name:'输入问题'}).fill('Alpha 保修多久？');
+  await page.getByRole('button',{name:'发送问题'}).click();
+  await page.getByText('保修为24个月',{exact:false}).waitFor();
+  await page.getByRole('button',{name:/\[1\].*01_产品/}).click();
+  await page.locator('.source-panel canvas').waitFor();
+  await page.screenshot({path:'artifacts/ui-chat.png',fullPage:true});
+  await page.getByRole('button',{name:'关闭引用'}).click();
+  await page.getByRole('button',{name:/文档库/}).click();
+  await page.getByRole('button',{name:'编辑标签'}).first().click();
+  await page.getByLabel('分类',{exact:true}).fill('验收分类');
+  await page.getByRole('button',{name:'保存',exact:true}).click();
+  await page.getByText('3 页 · 验收分类',{exact:true}).waitFor();
+  await page.screenshot({path:'artifacts/ui-library.png',fullPage:true});
+  await page.setViewportSize({width:720,height:900});
+  await page.screenshot({path:'artifacts/ui-mobile.png',fullPage:true});
+  if(errors.length)throw new Error(errors.join('\n'));
+  fs.writeFileSync('artifacts/ui-report.json',JSON.stringify({pass:true,checks:['home','chat stream','citation panel','labels persisted','responsive layout'],pageErrors:errors},null,2));
+  await browser.close();
+  console.log('UI smoke passed');
+})().catch(e=>{console.error(e);process.exit(1)});

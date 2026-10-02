@@ -1,0 +1,13 @@
+{
+  "pass": true,
+  "realModel": true,
+  "checks": [
+    "packaged exe launch",
+    "real streamed Qwen answer",
+    "correct 120.50 EUR",
+    "actual PDF rendered",
+    "bundled browser CJK font loaded",
+    "no external browser requests"
+  ],
+  "pageErrors": []
+}

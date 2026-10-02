@@ -1,0 +1,13 @@
+{
+  "llama_server": "runtime/llama/llama-server.exe",
+  "chat_model": "runtime/models/Qwen3-4B-Instruct-2507-Q4_K_M.gguf",
+  "chat_model_sha256": "",
+  "embedding_model": "runtime/models/Qwen3-Embedding-0.6B-Q8_0.gguf",
+  "embedding_model_sha256": "",
+  "soffice": "runtime/LibreOffice-25.8.2.2/program/soffice.exe",
+  "ocr_python": "runtime/ocr/python.exe",
+  "ocr_detection": "runtime/ocr-models/PP-OCRv5_mobile_det",
+  "ocr_recognition": "runtime/ocr-models/PP-OCRv5_mobile_rec",
+  "threads": 4,
+  "context": 8192
+}

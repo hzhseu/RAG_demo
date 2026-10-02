@@ -1,0 +1,9 @@
+{
+  "documents": 40,
+  "pages": 400,
+  "chunks": 403,
+  "elapsed_seconds": 0.43,
+  "parser_version": "2",
+  "ocr_substituted": true,
+  "real_model_build": false
+}
