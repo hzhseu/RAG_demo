@@ -26,6 +26,7 @@ node_modules/
 /runtime.json
 *.ragkb
 /artifacts/
+/knowledge_bases/
 
 # Local environment configuration (keep shareable examples)
 .env

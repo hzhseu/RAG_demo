@@ -53,7 +53,13 @@ def parse_pptx(path: Path, ocr=None, image_dir: Path | None = None):
                     blocks.append({"kind": "table", "rows": rows, "text": "\n".join(" | ".join(r) for r in rows)})
                 elif shape.shape_type == MSO_SHAPE_TYPE.PICTURE:
                     blob = shape.image.blob
-                    image_name = f"p{number}-{shape.shape_id}.{shape.image.ext}"
+                    try:
+                        extension = shape.image.ext
+                    except OSError as error:
+                        # This decoder reads the in-memory image, not a file on
+                        # disk. Its OSError denotes bad content, not storage.
+                        raise ValueError(f'第 {number} 页图片无法解码：{describe_error(error)}') from error
+                    image_name = f"p{number}-{shape.shape_id}.{extension}"
                     if image_dir:
                         image_dir.mkdir(parents=True, exist_ok=True)
                         (image_dir / image_name).write_bytes(blob)

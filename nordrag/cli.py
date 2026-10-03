@@ -23,8 +23,10 @@ def print_progress(event):
     if event['stage'] == 'retry':
         print(f"[自动恢复] {event['document']}：{event['reason']}；重启本地模型，缩小处理批次后重试（第 {event['attempt']}/{event['attempts']} 次）。", flush=True)
     elif event['stage'] == 'failed':
-        print('文档处理失败：', file=sys.stderr, flush=True)
+        print('文档处理失败，已跳过：', file=sys.stderr, flush=True)
         print_failure(event['failure'])
+    elif event['stage'] == 'complete' and event.get('status') == 'complete_with_warnings':
+        print(f"[构建完成，部分文件已跳过] {event['output']}", flush=True)
     else:
         stage = STAGES.get(event['stage'], {'parsed': '文档处理完成', 'complete': '知识库构建完成'}.get(event['stage'], event['stage']))
         detail = event.get('document', event.get('output', ''))
@@ -81,6 +83,10 @@ def main(argv=None):
             result = build(args.input, args.name, args.output, data_home() / "cache", engines, threading.Event(), args.exclude, print_progress)
             logger.info('build_completed documents=%s pages=%s', len(result['included']), result['total_pages'])
             print(json.dumps(result, ensure_ascii=False, indent=2))
+            print(f"成功 {len(result['included'])} 个文档，跳过 {len(result['failed'])} 个失败文件。", flush=True)
+            for failure in result['failed']:
+                print_failure(failure)
+            print(f"详细报告：{args.output.with_suffix('.report.json').resolve()}", flush=True)
         finally:
             active_error = sys.exc_info()[1]
             cleanup_errors = []

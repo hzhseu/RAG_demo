@@ -105,3 +105,28 @@ def test_cleanup_error_does_not_replace_original_failure(deck, tmp_path, builder
     assert '原始向量错误' in error
     assert str(tmp_path / 'result.report.json') in error
     assert '组件清理错误' in error
+
+
+def test_partial_success_exits_zero_and_lists_skipped_files(deck, tmp_path, builder_cli, capsys):
+    (tmp_path / 'broken.pptx').write_bytes(b'broken')
+    assert run_build(deck, tmp_path) == 0
+    captured = capsys.readouterr()
+    assert '构建完成，部分文件已跳过' in captured.out
+    assert '成功 1 个文档，跳过 1 个失败文件' in captured.out
+    assert str(tmp_path / 'result.report.json') in captured.out
+    assert 'broken.pptx' in captured.err and '扫描 PPTX' in captured.err
+
+
+def test_partial_report_save_failure_keeps_document_reason(deck, tmp_path, builder_cli, monkeypatch, capsys):
+    import nordrag.builder as builder
+    original = builder.write_json
+    (tmp_path / 'broken.pptx').write_bytes(b'broken')
+    def write(path, value):
+        if path.name == 'result.report.json' and value.get('status') != 'building':
+            raise PermissionError('报告写入失败')
+        original(path, value)
+    monkeypatch.setattr(builder, 'write_json', write)
+    assert run_build(deck, tmp_path) == 1
+    error = capsys.readouterr().err
+    assert 'broken.pptx' in error and '报告写入失败' in error
+    assert '报告未能保存' in error

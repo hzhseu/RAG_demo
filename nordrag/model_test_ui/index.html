@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>RadioMind · 模型测试</title><link rel="icon" href="data:,"><link rel="stylesheet" href="style.css"><script src="app.js" defer></script></head>
+<body>
+<header><div class="brand"><span class="mark">R</span><div><strong>RadioMind</strong><span class="sub">本地模型实验室</span></div></div><span class="badge">CPU · 离线运行</span></header>
+<main>
+  <div class="intro"><div><p class="eyebrow">MODEL PLAYGROUND</p><h1>直接试试模型的能力。</h1><p>连续提问、分析材料或改写摘要。保留对话上下文，无需知识库。</p></div><div class="model"><label for="model-select">回答模型</label><select id="model-select" disabled aria-describedby="model-help"></select><strong id="model">正在连接…</strong><small id="config"></small><small id="model-help">切换模型会新建对话。更多本地模型可通过配置添加。</small></div></div>
+  <div id="notice" role="alert" hidden></div>
+  <div class="conversation-bar"><div><strong id="session-title">新对话</strong><span id="session-info" class="hint"></span></div><button id="new-session" type="button" disabled>＋ 新建对话</button></div>
+  <div class="workspace">
+    <section class="panel input-panel" aria-label="测试输入">
+      <div class="panel-title"><h2>测试输入</h2><button type="button" id="example" class="quiet">填入示例</button></div>
+      <form id="test-form">
+        <label for="mode">测试模式</label><select id="mode"><option value="chat">自由问答</option><option value="grounded">根据材料回答</option><option value="summary">生成摘要</option></select>
+        <p id="mode-hint" class="hint">直接向模型提问，后续问题会携带本会话的历史问答。</p>
+        <div id="material-group" hidden><label for="material">参考材料 <span>直接粘贴文本</span></label><textarea id="material" rows="9" maxlength="100000" placeholder="粘贴需要提问或总结的原文…"></textarea></div>
+        <div id="question-group"><label for="question" id="question-label">问题</label><textarea id="question" rows="4" maxlength="20000" placeholder="例如：请用一个生活中的例子解释什么是向量检索。" required></textarea></div>
+        <label for="instruction">输出要求 <span>选填</span></label><textarea id="instruction" rows="2" maxlength="4000" placeholder="例如：用中文回答，分3点，控制在150字以内。"></textarea>
+        <div class="settings"><div><label for="max-tokens">输出上限（tokens）</label><input id="max-tokens" type="number" min="32" max="4096" value="768" required></div><p class="hint">temperature 固定为 0.1，与项目一致。<br>token 不等于中文字数。</p></div>
+        <div class="actions"><button id="run" type="submit" class="primary">开始测试 <span>↗</span></button><button id="stop" type="button" disabled>停止生成</button></div>
+      </form>
+    </section>
+    <section class="panel output-panel" aria-label="测试结果">
+      <div class="panel-title"><h2>对话</h2><span id="status" class="status" role="status">就绪</span></div>
+      <div class="metrics"><div><span>加载模型</span><strong id="load">—</strong></div><div><span>首字等待</span><strong id="first">—</strong></div><div><span>总耗时</span><strong id="elapsed">—</strong></div><div><span>输出 tokens</span><strong id="tokens">—</strong></div></div>
+      <p class="hint timing">首字等待与总耗时从提交开始计算，包含加载和输入处理。模型保持加载时，后续测试加载耗时接近零。</p>
+      <div id="conversation" class="output" tabindex="0" aria-label="对话内容"><div id="output" class="empty">你的对话会显示在这里。点击“填入示例”，即可开始。</div></div>
+      <p id="result-note" class="hint"></p>
+      <div class="result-actions"><button type="button" id="copy" disabled>复制最新回答</button><button type="button" id="export" disabled>导出本轮记录</button><button type="button" id="export-session" disabled>导出完整对话</button></div>
+    </section>
+  </div>
+  <section class="panel history"><div class="panel-title"><h2>本次运行的会话</h2><span class="hint">最多30个会话 · 退出程序后清除，需保留请导出</span><button id="delete-session" type="button" disabled>删除当前会话</button></div><div id="history-list" class="history-list"><p class="hint">还没有会话。</p></div></section>
+  <footer>仅使用本机回答模型 · 不检索知识库 · 本工具的提示词用于模型测试，与知识库的引用及分段摘要流程不同</footer>
+</main>
+</body></html>

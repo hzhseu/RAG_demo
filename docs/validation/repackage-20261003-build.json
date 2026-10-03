@@ -1,0 +1,23 @@
+{
+  "duplicates": [],
+  "failed": [
+    {
+      "path": "bad-test.pptx",
+      "stage": "scan",
+      "error_type": "BadZipFile",
+      "error": "BadZipFile: File is not a zip file"
+    }
+  ],
+  "excluded": [],
+  "status": "complete_with_warnings",
+  "included": [
+    "01_产品与指标.pptx",
+    "02_流程与术语.pptx"
+  ],
+  "name": "Portable ingestion validation",
+  "total_pages": 6,
+  "scanned_pages": 6,
+  "chunks": 9,
+  "elapsed_seconds": 845.44,
+  "version": "9a718c3f49f5ddd3894a"
+}

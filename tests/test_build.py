@@ -49,15 +49,15 @@ def test_build_survives_source_removal_and_reuses_cache(deck, tmp_path):
     assert m["processing"]["models_and_components"]["embedding"] == e.embedding_id
 
 
-def test_failures_require_explicit_exclusion(deck, tmp_path):
+def test_scan_failures_are_skipped_and_manual_exclusion_still_works(deck, tmp_path):
     (deck.parent / "broken.pptx").write_bytes(b"invalid")
     out = tmp_path / "bad.ragkb"
-    with pytest.raises(BuildError):
-        build(deck.parent, "Test", out, tmp_path / "cache", Engines(), threading.Event())
-    assert not out.exists()
+    result = build(deck.parent, "Test", out, tmp_path / "cache", Engines(), threading.Event())
+    assert out.exists()
+    assert result['status'] == 'complete_with_warnings'
     report = read_json(out.with_suffix(".report.json"))
     assert report["failed"][0]["path"] == "broken.pptx"
-    result = build(deck.parent, "Test", out, tmp_path / "cache", Engines(), threading.Event(), excluded=["broken.pptx"])
+    result = build(deck.parent, "Test", tmp_path / 'excluded.ragkb', tmp_path / "cache", Engines(), threading.Event(), excluded=["broken.pptx"])
     assert result["excluded"] == ["broken.pptx"]
 
 

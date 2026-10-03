@@ -9,6 +9,12 @@ page.on('request',request=>{const target=new URL(request.url());if(['http:','htt
 await page.goto(url);
 await page.getByRole('textbox',{name:'输入问题'}).waitFor();
 await page.evaluate(async()=>{const fonts=await document.fonts.load('16px "Nord CJK"','中文');if(!fonts.length||fonts[0].status!=='loaded')throw Error('Bundled browser CJK font did not load');});
+await page.getByRole('button',{name:'选择知识库',exact:true}).click();
+await page.getByRole('dialog',{name:'选择知识库'}).waitFor();
+await page.getByRole('button',{name:'打开本机文件',exact:true}).waitFor();
+await page.getByRole('button',{name:'关闭知识库选择'}).click();
+await page.getByRole('button',{name:/新建对话/}).click();
+await page.waitForFunction(()=>document.querySelectorAll('.message.assistant').length===0);
 await page.getByRole('textbox',{name:'输入问题'}).fill('Alpha 收入是多少 EUR？');
 await page.getByRole('button',{name:'发送问题'}).click();
 await page.getByRole('button',{name:'停止',exact:false}).waitFor({state:'hidden',timeout:120000});
@@ -20,6 +26,6 @@ await page.getByText('正在加载原页…',{exact:true}).waitFor({state:'hidde
 await page.waitForFunction(()=>{const c=document.querySelector('.source-panel canvas');if(!c)return false;const data=c.getContext('2d').getImageData(0,0,c.width,c.height).data;let dark=0;for(let i=0;i<data.length;i+=16){if(data[i]<150&&data[i+1]<150&&data[i+2]<150&&data[i+3]>0)dark++;}return dark>100;});
 await page.screenshot({path:'artifacts/real-packaged-chat.png',fullPage:true});
 if(errors.length)throw Error(errors.join('\n'));
-fs.writeFileSync('artifacts/packaged-ui-report.json',JSON.stringify({pass:true,realModel:true,checks:['packaged exe launch','real streamed Qwen answer','correct 120.50 EUR','actual PDF rendered','bundled browser CJK font loaded','no external browser requests'],pageErrors:errors},null,2));
+fs.writeFileSync('artifacts/packaged-ui-report.json',JSON.stringify({pass:true,realModel:true,checks:['packaged exe launch','knowledge picker dialog','fresh chat session','real streamed Qwen answer','correct 120.50 EUR','actual PDF rendered','bundled browser CJK font loaded','no external browser requests'],pageErrors:errors},null,2));
 await browser.close();console.log('Real packaged browser smoke passed');
 })().catch(e=>{console.error(e);process.exit(1)});

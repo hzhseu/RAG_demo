@@ -3,6 +3,10 @@ import subprocess
 import httpx
 
 
+class ComponentUnavailableError(RuntimeError):
+    """A shared model could not start; skipping input files cannot fix this."""
+
+
 STAGES = {
     'scan': '扫描 PPTX', 'cache': '读取或准备缓存', 'parse': '解析 PPTX / 图片 OCR',
     'convert': '转换 PDF 预览', 'copy': '整理文档文件', 'chunk': '提取检索片段',

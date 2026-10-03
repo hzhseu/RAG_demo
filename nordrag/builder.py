@@ -1,14 +1,14 @@
 import hashlib
-import json
 import shutil
 import tempfile
 import time
 from pathlib import Path
+import numpy as np
 from .parsing import scan, parse_pptx, chunk_pages, PARSER_VERSION, CHUNK_MAX_CHARS
 from .package import seal
 from .index import create_index
 from .util import read_json, write_json, digest
-from .diagnostics import describe_error
+from .diagnostics import describe_error, ComponentUnavailableError
 
 
 class BuildError(RuntimeError):
@@ -23,6 +23,22 @@ def check_cancel(cancel):
         raise BuildError("任务已取消")
 
 
+def record_document_failure(report, doc, stage, error, folder, progress):
+    # Storage/resource failures affect the whole build. A vanished/unreadable
+    # source file is the exception: it belongs to this document alone.
+    source_error = (isinstance(error, (FileNotFoundError, PermissionError))
+                    and error.filename and Path(error.filename) == Path(doc['path']))
+    if (isinstance(error, (ComponentUnavailableError, MemoryError))
+            or isinstance(error, OSError) and not isinstance(error, TimeoutError) and not source_error):
+        raise error
+    failure = {"path": doc["relative_path"], "stage": stage,
+               "error_type": type(error).__name__, "error": describe_error(error)}
+    report['failed'].append(failure)
+    progress({'stage': 'failed', 'failure': failure})
+    if folder.exists():
+        shutil.rmtree(folder)
+
+
 def build(directory, name, output, cache, engines, cancel, excluded=(), progress=lambda event: None):
     output, cache = Path(output), Path(cache)
     if output.exists():
@@ -32,37 +48,43 @@ def build(directory, name, output, cache, engines, cancel, excluded=(), progress
     started = time.perf_counter()
     report = scan(Path(directory), excluded)
     docs_in = report.pop("documents")
-    report.update(status="building", included=[], name=name, total_pages=sum(d["pages"] for d in docs_in))
+    report.update(status="building", included=[], name=name, total_pages=0,
+                  scanned_pages=sum(d["pages"] for d in docs_in))
     report_path = output.with_suffix(".report.json")
-    write_json(report_path, report)
-    stage = 'scan'
+    stage = 'report'
     try:
+        write_json(report_path, report)
+        stage = 'scan'
         check_cancel(cancel)
+        for failure in report['failed']:
+            progress({'stage': 'failed', 'failure': failure})
         if not docs_in:
-            raise BuildError("没有可构建的 PPTX")
+            raise BuildError("没有可构建的 PPTX，未生成知识库")
         with tempfile.TemporaryDirectory(prefix="build-", dir=cache) as temp:
             root = Path(temp)
             chunks, documents = [], []
+            candidates = []
             completed_pages = 0
             for doc in docs_in:
                 check_cancel(cancel)
                 stage = 'cache'
                 key = hashlib.sha256((doc["sha256"] + PARSER_VERSION + engines.signature).encode()).hexdigest()
                 cached = cache / key
+                folder = root / "documents" / doc["id"]
                 try:
                     # Cache is trusted only after verifying every cached file.
                     valid = (cached / "ready.json").exists()
                     if valid:
                         try:
                             valid = all((cached / p).is_file() and digest(cached / p) == sha for p, sha in read_json(cached / "ready.json").items())
-                        except (OSError, ValueError):
+                        except (FileNotFoundError, ValueError):
                             valid = False
                     if not valid:
                         if cached.exists():
                             shutil.rmtree(cached)
                         cached.mkdir()
                         stage = 'parse'
-                        progress({"stage": "parse", "document": doc["name"], "completed_pages": completed_pages, "total_pages": report["total_pages"]})
+                        progress({"stage": "parse", "document": doc["name"], "completed_pages": completed_pages, "total_pages": report["scanned_pages"]})
                         pages = parse_pptx(Path(doc["path"]), engines.ocr, cached / "images")
                         write_json(cached / "pages.json", pages)
                         check_cancel(cancel)
@@ -72,7 +94,6 @@ def build(directory, name, output, cache, engines, cancel, excluded=(), progress
                         write_json(cached / "ready.json", {p.relative_to(cached).as_posix(): digest(p) for p in cached.rglob("*") if p.is_file() and p.name != "ready.json"})
                     pages = read_json(cached / "pages.json")
                     stage = 'copy'
-                    folder = root / "documents" / doc["id"]
                     shutil.copytree(cached, folder, ignore=shutil.ignore_patterns("organization.json", "*.writing"))
                     (folder / "ready.json").unlink(missing_ok=True)
                     shutil.copy2(doc["path"], folder / "source.pptx")
@@ -97,37 +118,62 @@ def build(directory, name, output, cache, engines, cancel, excluded=(), progress
                         check_cancel(cancel)
                         write_json(cached / "organization.json", organized)
                         write_json(cached / "ready.json", {p.relative_to(cached).as_posix(): digest(p) for p in cached.rglob("*") if p.is_file() and p.name != "ready.json" and not p.name.endswith(".writing")})
-                    documents.append({k: v for k, v in doc.items() if k != "path"} | organized | {"source": f"documents/{doc['id']}/source.pptx", "preview": f"documents/{doc['id']}/preview.pdf"})
-                    chunks.extend(doc_chunks)
-                    report["included"].append(doc["relative_path"])
+                    document = {k: v for k, v in doc.items() if k != "path"} | organized | {"source": f"documents/{doc['id']}/source.pptx", "preview": f"documents/{doc['id']}/preview.pdf"}
+                    candidates.append((doc, document, doc_chunks, folder))
                     completed_pages += doc["pages"]
-                    progress({"stage": "parsed", "document": doc["name"], "completed_pages": completed_pages, "total_pages": report["total_pages"]})
+                    progress({"stage": "parsed", "document": doc["name"], "completed_pages": completed_pages, "total_pages": report["scanned_pages"]})
                 except Exception as e:
                     check_cancel(cancel)
-                    failure = {"path": doc["relative_path"], "stage": stage, "error_type": type(e).__name__, "error": describe_error(e)}
-                    report["failed"].append(failure)
-                    progress({'stage': 'failed', 'failure': failure})
-            if report["failed"]:
-                stage = 'documents'
-                raise BuildError("存在失败文件；请修复重试或使用 --exclude 明确排除")
+                    record_document_failure(report, doc, stage, e, folder, progress)
             check_cancel(cancel)
             stage = 'embedding'
             vectors = []
-            for start in range(0, len(chunks), 8):
+            dimension = None
+            for doc, document, doc_chunks, folder in candidates:
                 check_cancel(cancel)
-                progress({"stage": "embedding", "completed": start, "total": len(chunks)})
-                vectors.extend(engines.embed([c["text"] for c in chunks[start:start + 8]]))
+                try:
+                    doc_vectors = []
+                    for start in range(0, len(doc_chunks), 8):
+                        check_cancel(cancel)
+                        progress({"stage": "embedding", "document": doc['name'], "completed": start, "total": len(doc_chunks)})
+                        batch = doc_chunks[start:start + 8]
+                        batch_vectors = engines.embed([c["text"] for c in batch])
+                        if len(batch_vectors) != len(batch):
+                            raise ValueError('文档嵌入向量批次数量与检索片段不匹配')
+                        doc_vectors.extend(batch_vectors)
+                    check_cancel(cancel)
+                    matrix = np.asarray(doc_vectors, dtype=np.float32)
+                    if (matrix.ndim != 2 or len(matrix) != len(doc_chunks)
+                            or matrix.shape[1] == 0 or not np.isfinite(matrix).all()
+                            or np.any(np.linalg.norm(matrix, axis=1) == 0)
+                            or dimension is not None and matrix.shape[1] != dimension):
+                        raise ValueError('文档嵌入向量数量、维度或数值无效')
+                except Exception as e:
+                    check_cancel(cancel)
+                    record_document_failure(report, doc, stage, e, folder, progress)
+                    continue
+                dimension = matrix.shape[1]
+                vectors.extend(matrix)
+                chunks.extend(doc_chunks)
+                documents.append(document)
+                report['included'].append(doc['relative_path'])
+                report['total_pages'] += doc['pages']
+            if not documents:
+                raise BuildError('所有文档均处理失败，没有可用文档，未生成知识库')
             stage = 'index'
             create_index(root, chunks, vectors)
             write_json(root / "documents.json", documents)
             write_json(root / "chunks.json", chunks)
             check_cancel(cancel)
-            report.update(status="complete", chunks=len(chunks), elapsed_seconds=round(time.perf_counter() - started, 2))
+            report.update(status="complete_with_warnings" if report['failed'] else "complete", chunks=len(chunks), elapsed_seconds=round(time.perf_counter() - started, 2))
+            stage = 'report'
             write_json(root / "build-report.json", report)
             processing = {"parser_version": PARSER_VERSION, "chunk_max_chars": CHUNK_MAX_CHARS, "models_and_components": getattr(engines, "identifiers", {"embedding": engines.embedding_id})}
             stage = 'seal'
             m = seal(root, output, {"name": name, "embedding": engines.embedding_id, "parser": PARSER_VERSION, "processing": processing, "engine_signature": engines.signature, "documents": len(documents), "pages": report["total_pages"]})
             report["version"] = m["version"]
+            stage = 'report'
+            write_json(report_path, report)
     except BaseException as e:
         report.update(status="cancelled" if cancel.is_set() or isinstance(e, KeyboardInterrupt) else "failed", error=describe_error(e), stage=stage, error_type=type(e).__name__, elapsed_seconds=round(time.perf_counter() - started, 2))
         saved_path = None
@@ -137,7 +183,5 @@ def build(directory, name, output, cache, engines, cancel, excluded=(), progress
         except OSError as report_error:
             report['report_error'] = describe_error(report_error)
         raise BuildError(str(e) or describe_error(e), report=report, report_path=saved_path) from e
-    else:
-        write_json(report_path, report)
-    progress({"stage": "complete", "output": str(output)})
+    progress({"stage": "complete", "output": str(output), "status": report['status']})
     return report

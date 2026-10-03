@@ -16,6 +16,7 @@ from pypdf import PdfReader
 from .config import asset, preflight, app_root
 from .generation import summarize_document, SYSTEM
 from .processes import track, run_owned
+from .diagnostics import ComponentUnavailableError, describe_error
 
 
 def free_port():
@@ -49,7 +50,7 @@ class LlamaServer:
         for _ in range(240):
             if self.process.poll() is not None:
                 self.stop()
-                raise RuntimeError("本地模型进程启动失败，请检查模型、CPU 指令集和运行库")
+                raise ComponentUnavailableError("本地模型进程启动失败，请检查模型、CPU 指令集和运行库")
             try:
                 if self.client.get("/health", timeout=1).status_code == 200:
                     return self
@@ -57,7 +58,7 @@ class LlamaServer:
                 pass
             time.sleep(0.5)
         self.stop()
-        raise RuntimeError("本地模型加载超时")
+        raise ComponentUnavailableError("本地模型加载超时")
 
     def stop(self):
         if self.process and self.process.poll() is None:
@@ -221,7 +222,25 @@ class Engines:
             p = Path(tmp)
             (p / "image.bin").write_bytes(blob)
             worker = (Path(__file__).parent / "ocr_worker.py")
-            result = run_owned([str(asset(self.cfg, "ocr_python")), str(worker), str(p / "image.bin"), str(p / "result.json"), str(asset(self.cfg, "ocr_detection")), str(asset(self.cfg, "ocr_recognition"))], timeout=180, creationflags=hidden_flags(), env=os.environ | {"PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK": "True", "HF_HUB_OFFLINE": "1"})
-            if result.returncode or not (p / "result.json").exists():
-                raise RuntimeError("离线 OCR 失败，请检查 OCR 运行库和模型")
-            return json.loads((p / "result.json").read_text(encoding="utf-8"))["text"]
+            output = p / 'result.json'
+            timed_out = None
+            try:
+                result = run_owned([str(asset(self.cfg, "ocr_python")), str(worker), str(p / "image.bin"), str(output), str(asset(self.cfg, "ocr_detection")), str(asset(self.cfg, "ocr_recognition"))], timeout=180, creationflags=hidden_flags(), env=os.environ | {"PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK": "True", "HF_HUB_OFFLINE": "1"})
+            except subprocess.TimeoutExpired as error:
+                timed_out = error
+            try:
+                payload = json.loads(output.read_text(encoding='utf-8'))
+                if not isinstance(payload, dict):
+                    raise ValueError('invalid OCR result')
+            except (FileNotFoundError, ValueError) as error:
+                raise ComponentUnavailableError('离线 OCR 未返回有效结果，请检查 OCR 运行库和模型') from error
+            if timed_out:
+                if payload.get('stage') != 'document':
+                    raise ComponentUnavailableError(f'离线 OCR 初始化超时：{describe_error(timed_out)}') from timed_out
+                raise timed_out
+            if result.returncode or 'text' not in payload:
+                message = f"离线 OCR 失败：{payload.get('error_type', 'WorkerError')}: {payload.get('error', '组件异常退出，请检查运行库和模型')}"
+                if payload.get('stage') != 'document' or 'error' not in payload:
+                    raise ComponentUnavailableError(message)
+                raise RuntimeError(message)
+            return payload['text']

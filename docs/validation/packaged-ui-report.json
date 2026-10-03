@@ -3,6 +3,8 @@
   "realModel": true,
   "checks": [
     "packaged exe launch",
+    "knowledge picker dialog",
+    "fresh chat session",
     "real streamed Qwen answer",
     "correct 120.50 EUR",
     "actual PDF rendered",

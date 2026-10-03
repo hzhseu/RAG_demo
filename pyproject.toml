@@ -12,6 +12,10 @@ dependencies = ["fastapi", "uvicorn", "numpy", "python-pptx", "pillow", "httpx",
 [project.scripts]
 kb-builder = "nordrag.cli:main"
 nord-chat = "nordrag.launcher:main"
+model-tester = "nordrag.model_test:main"
+
+[tool.setuptools.package-data]
+nordrag = ["model_test_ui/*"]
 
 [tool.setuptools.packages.find]
 include = ["nordrag*"]
