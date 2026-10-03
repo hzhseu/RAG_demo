@@ -92,7 +92,7 @@ def test_fixed_document_rejoins_and_successful_cache_is_reused(pair, tmp_path):
 def test_shared_storage_and_publication_errors_abort(pair, tmp_path, monkeypatch, target):
     original = getattr(builder, target)
     def fail(*args, **kwargs):
-        if target != 'write_json' or args[0].name == 'organization.json':
+        if target != 'write_json' or args[0].parent.name == 'generation-v2':
             raise PermissionError('shared write denied')
         return original(*args, **kwargs)
     monkeypatch.setattr(builder, target, fail)

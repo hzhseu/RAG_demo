@@ -19,6 +19,7 @@ from .index import retrieve, all_chunks
 from .generation import prepare_messages, checked_answer, summarize_topic
 from .package import export_package
 from .operations import OperationLock
+from .chat_models import identity
 from .logging_utils import logger
 
 
@@ -68,6 +69,7 @@ def create_knowledge_app(root: Path, manifest, engines, home: Path, token=None, 
     state_lock = threading.RLock()
     jobs = {}
     app.state.jobs = jobs
+    app.state.models = None
     app.state.retain_worker = lambda: None
     app.state.release_worker = lambda: None
 
@@ -99,7 +101,23 @@ def create_knowledge_app(root: Path, manifest, engines, home: Path, token=None, 
         value = read_json(p)
         if value["knowledge_version"] != manifest["version"]:
             raise HTTPException(409, "该会话属于其他知识库，请打开对应知识库")
+        legacy={'id':'default','name':'Qwen3-4B-Instruct-2507','sha256':'3605803b982cb64aead44f6c1b2ae36e3acdb41d8e46c8a94c6533bc4c67e597','generation':{'temperature':.1},'legacy_inferred':True}
+        value.setdefault('model',legacy)
+        for message in value['messages']:
+            if message.get('role')=='assistant':message.setdefault('model',value['model'])
         return value
+
+    def current_identity():
+        return getattr(engines,'model_identity', {'id':'default','name':'Qwen3-4B-Instruct-2507'})
+
+    def check_binding(saved, current):
+        fields=('id','sha256') if saved.get('legacy_inferred') else ('id','sha256','generation','chat_template_kwargs','context','engine_sha256')
+        if any(key in saved and key in current and saved[key] != current[key] for key in fields):
+            raise HTTPException(409,'会话绑定的模型文件或生成配置已改变，请恢复原配置或新建对话')
+
+    def check_model(request):
+        if app.state.models:
+            app.state.models.check_sequence(request.headers.get('X-Model-Sequence'))
 
     def attach_names(chunks):
         return [{**c, "doc_name": docs_by_id[c["doc_id"]]["name"]} for c in chunks]
@@ -148,13 +166,22 @@ def create_knowledge_app(root: Path, manifest, engines, home: Path, token=None, 
             busy.release()
             raise
 
-    @app.post("/api/sessions")
     def new_session():
         sid = uuid.uuid4().hex
-        data = {"id": sid, "knowledge_version": manifest["version"], "title": "新对话", "created_at": time.time(), "messages": []}
+        data = {"id": sid, "knowledge_version": manifest["version"], "title": "新对话", "created_at": time.time(), "messages": [], "model": current_identity()}
         with state_lock:
             write_json(session_path(sid), data)
         return data
+
+    app.state.new_session = new_session
+
+    @app.post('/api/sessions')
+    def create_session(request: Request):
+        if not busy.acquire(blocking=False):raise HTTPException(409,'请等待当前任务完成')
+        try:
+            check_model(request)
+            return new_session()
+        finally:busy.release()
 
     @app.get("/api/sessions")
     def sessions():
@@ -166,6 +193,26 @@ def create_knowledge_app(root: Path, manifest, engines, home: Path, token=None, 
     def session(sid: str):
         with state_lock:
             return get_session(sid)
+
+    @app.post('/api/sessions/{sid}/activate')
+    def activate_session(sid: str, request: Request):
+        if not busy.acquire(blocking=False):
+            raise HTTPException(409,'请等待当前任务完成')
+        try:
+            check_model(request)
+            conversation=get_session(sid)
+            if app.state.models:
+                entry=app.state.models.models.get(conversation['model']['id'])
+                if not entry:raise HTTPException(409,'此会话绑定的模型已不在列表中')
+                check_binding(conversation['model'],identity(entry['cfg']))
+            if app.state.models and (conversation['model']['id'] != current_identity()['id'] or app.state.models.state == 'error'):
+                app.state.models.switch(conversation['model']['id'],request.headers.get('X-Model-Sequence'),locked=True)
+            return conversation
+        finally:busy.release()
+
+    @app.get('/api/sessions/{sid}/export')
+    def export_session(sid: str):
+        return JSONResponse(get_session(sid), headers={'Content-Disposition':f'attachment; filename="conversation-{sid}.json"'})
 
     @app.delete("/api/sessions/{sid}")
     def delete_session(sid: str):
@@ -198,11 +245,22 @@ def create_knowledge_app(root: Path, manifest, engines, home: Path, token=None, 
             event.set()
         return {"cancelled": True}
 
-    def start_generation(sid, question, selected=None):
+    def start_generation(sid, question, selected=None, request=None):
         with state_lock:
             conversation = get_session(sid)
         if not busy.acquire(blocking=False):
             raise HTTPException(409, "已有生成任务，请等待或停止")
+        try:
+            if request:check_model(request)
+            check_binding(conversation['model'],current_identity())
+            if conversation['model']['id'] != current_identity()['id']:
+                raise HTTPException(409,'此会话绑定其他模型，请重新选择该会话后继续')
+            if app.state.models and app.state.models.state == 'error':
+                raise HTTPException(409,'模型尚未就绪，请重新选择回答模型')
+        except BaseException:
+            busy.release()
+            raise
+        model_identity = current_identity()
         logger.info('generation_started kind=%s', 'topic' if selected else 'chat')
         event = threading.Event()
         jid = uuid.uuid4().hex
@@ -249,7 +307,7 @@ def create_knowledge_app(root: Path, manifest, engines, home: Path, token=None, 
                     vector = engines.embed([search_query], query=True)[0]
                     check()
                     evidence = attach_names(retrieve(root, search_query, vector))
-                    prompt, citations = prepare_messages(question, evidence, history, count)
+                    prompt, citations = prepare_messages(question, evidence, history, count, budget=min(6500,int(getattr(engines,'cfg',{}).get('context',8192))-1024))
                     check()
                     send("evidence", citations=citations)
                     answer = ""
@@ -269,10 +327,10 @@ def create_knowledge_app(root: Path, manifest, engines, home: Path, token=None, 
                     send("cancelled")
                     return
                 conversation["title"] = conversation["title"] if conversation["messages"] else question[:40]
-                conversation["messages"].extend([{"role": "user", "content": question}, {"role": "assistant", "content": answer, "citations": citations, "supported": valid, "knowledge_version": manifest["version"]}])
+                conversation["messages"].extend([{"role": "user", "content": question}, {"role": "assistant", "content": answer, "citations": citations, "supported": valid, "knowledge_version": manifest["version"], "model": model_identity}])
                 with state_lock:
                     write_json(session_path(sid), conversation)
-                send("done", text=answer, supported=valid, citations=citations, elapsed_seconds=round(time.perf_counter()-started, 2), first_token_seconds=first_token)
+                send("done", text=answer, model=model_identity, supported=valid, citations=citations, elapsed_seconds=round(time.perf_counter()-started, 2), first_token_seconds=first_token)
                 logger.info('generation_completed supported=%s seconds=%.2f', valid, time.perf_counter()-started)
             except Exception as e:
                 logger.warning('generation_interrupted cancelled=%s exception_type=%s', event.is_set(), type(e).__name__)
@@ -312,16 +370,16 @@ def create_knowledge_app(root: Path, manifest, engines, home: Path, token=None, 
         return StreamingResponse(events(), media_type="text/event-stream", headers={"X-Accel-Buffering": "no"})
 
     @app.post("/api/chat")
-    def chat(body: ChatRequest):
+    def chat(body: ChatRequest, request: Request):
         if not body.question.strip():
             raise HTTPException(422, "问题不能为空")
-        return start_generation(body.session_id, body.question.strip())
+        return start_generation(body.session_id, body.question.strip(), request=request)
 
     @app.post("/api/topic")
-    def topic(body: TopicRequest):
+    def topic(body: TopicRequest, request: Request):
         if any(d not in docs_by_id for d in body.document_ids):
             raise HTTPException(404, "所选文档不存在")
-        return start_generation(body.session_id, "专题总结：" + "、".join(docs_by_id[d]["name"] for d in body.document_ids), set(body.document_ids))
+        return start_generation(body.session_id, "专题总结：" + "、".join(docs_by_id[d]["name"] for d in body.document_ids), set(body.document_ids), request=request)
 
     if static_dir and Path(static_dir).exists():
         app.mount("/", StaticFiles(directory=static_dir, html=True), name="frontend")
@@ -337,6 +395,14 @@ def create_app(root: Path | None, manifest, engines, home: Path, token=None, sta
     token = token or secrets.token_urlsafe(32)
     manager = KnowledgeManager(engines, home,
         lambda r, m, lock: create_knowledge_app(r, m, engines, home, token, operation_lock=lock), picker)
+    from .model_manager import ModelManager
+    models = ModelManager(engines, home, manager.busy) if hasattr(engines,'base_cfg') else None
+    original_factory = manager.factory
+    def factory(r,m,lock):
+        scoped=original_factory(r,m,lock)
+        scoped.state.models=models
+        return scoped
+    manager.factory=factory
     if root is not None:
         manager.adopt(root, manifest)
 
@@ -350,6 +416,7 @@ def create_app(root: Path | None, manifest, engines, home: Path, token=None, sta
     app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None, lifespan=lifespan)
     app.state.token = token
     app.state.knowledge = manager
+    app.state.models = models
 
     @app.middleware('http')
     async def authenticate(request: Request, call_next):
@@ -373,7 +440,7 @@ def create_app(root: Path | None, manifest, engines, home: Path, token=None, sta
 
     @app.get('/api/status')
     def status():
-        return {'app_version': __version__, 'model': 'Qwen3-4B-Instruct-2507 · CPU', **manager.status()}
+        return {'app_version': __version__, 'model': 'Qwen3-4B-Instruct-2507 · CPU', **manager.status(), **(app.state.models.status() if app.state.models else {})}
 
     @app.get('/api/knowledge/recent')
     def recent():
@@ -390,6 +457,29 @@ def create_app(root: Path | None, manifest, engines, home: Path, token=None, sta
     def switch(request: Request, body: SwitchRequest):
         return manager.switch(request.headers.get('X-Knowledge-Sequence'), recent_id=body.id)
 
+    @app.get('/api/models')
+    def list_models():
+        return {'models':app.state.models.options(), **app.state.models.status()} if app.state.models else {'models':[]}
+
+    @app.post('/api/models/switch')
+    def switch_model(request: Request, body: SwitchRequest):
+        if not app.state.models:raise HTTPException(409,'当前引擎不支持模型切换')
+        if not manager.busy.acquire(blocking=False):raise HTTPException(409,'请等待当前任务完成')
+        candidate=None
+        def create_candidate():
+            nonlocal candidate
+            if manager.active:
+                candidate=manager.active.app.state.new_session()
+                return {'session':candidate}
+            return {}
+        try:
+            manager.check_sequence(request.headers.get('X-Knowledge-Sequence'))
+            return app.state.models.switch(body.id,request.headers.get('X-Model-Sequence'),locked=True,on_ready=create_candidate)
+        except BaseException:
+            if candidate:(home/'sessions'/f"{candidate['id']}.json").unlink(missing_ok=True)
+            raise
+        finally:manager.busy.release()
+
     class ContextResponse(Response):
         def __init__(self, context, writing):
             super().__init__()
@@ -404,6 +494,8 @@ def create_app(root: Path | None, manifest, engines, home: Path, token=None, sta
     @app.api_route('/api/{path:path}', methods=['GET', 'POST', 'PATCH', 'DELETE'])
     def knowledge_request(request: Request, path: str):
         writing = request.method != 'GET'
+        if writing and app.state.models and not path.endswith('/cancel'):
+            app.state.models.check_sequence(request.headers.get('X-Model-Sequence'))
         context = manager.acquire(request.headers.get('X-Knowledge-Sequence'), writing)
         return ContextResponse(context, writing)
 

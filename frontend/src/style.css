@@ -213,3 +213,5 @@ input[type=checkbox]{accent-color:var(--accent)}
 .knowledge-picker .picker-error{color:#9F1239;background:#FFF1F2;padding:12px;border-radius:8px;overflow-wrap:anywhere}
 .knowledge-picker .picker-progress{color:#1D4ED8;line-height:1.7}
 @media(max-width:720px){header{height:auto;min-height:116px;padding:12px 16px;gap:10px}.knowledge-title-row{gap:8px}.knowledge-title-row h1{font-size:16px}.knowledge-select{font-size:11px}.source-panel{top:116px}.knowledge-picker{padding:22px}.header-meta .version{max-width:95px;overflow:hidden;text-overflow:ellipsis}}
+
+.model-select {display:flex;align-items:center;gap:8px}.model-select select {max-width:230px;padding:7px;border:1px solid #d8dce0;border-radius:7px;background:white;font:inherit}

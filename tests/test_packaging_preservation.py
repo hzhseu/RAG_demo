@@ -13,6 +13,7 @@ def test_repackaging_preserves_entire_previous_release(tmp_path, monkeypatch, bu
     (root / 'frontend/dist/index.html').write_text('frontend')
     (root / 'docs').mkdir()
     (root / 'README.md').write_text('readme')
+    (root / 'chat-models.json').write_text('{"default_model":"new","models":[]}')
     monkeypatch.setattr(packaging, 'ROOT', root)
     monkeypatch.setattr(packaging.sys, 'argv', ['package_windows.py', '--app-only'])
 
@@ -45,3 +46,19 @@ def test_conflicting_sample_is_preserved_without_overwriting_new_sample(tmp_path
     packaging.restore_knowledge_files(previous, target)
     assert (target / 'samples/demo.ragkb').read_bytes() == b'new sample'
     assert (target / 'preserved-knowledge/samples/demo.ragkb').read_bytes() == b'old knowledge'
+
+
+def test_custom_catalog_keeps_weights_and_engine_dlls(tmp_path):
+    import json
+    previous=tmp_path/'old';target=tmp_path/'new'
+    (previous/'custom-engine').mkdir(parents=True);target.mkdir()
+    (previous/'custom.gguf').write_bytes(b'custom model')
+    (previous/'custom-engine/llama-server.exe').write_bytes(b'engine')
+    (previous/'custom-engine/ggml.dll').write_bytes(b'dependency')
+    (previous/'model-test-models.json').write_text(json.dumps({'models':[{'id':'custom','name':'Custom','path':'custom.gguf','sha256':'a'*64,'llama_server':'custom-engine/llama-server.exe'}]}))
+    (target/'chat-models.json').write_text('{"default_model":"new","models":[]}')
+    packaging.restore_model_catalogs(previous,target)
+    entry=json.loads((target/'model-test-models.json').read_text())['models'][0]
+    assert (target/entry['path']).read_bytes()==b'custom model'
+    assert (target/entry['llama_server']).read_bytes()==b'engine'
+    assert (target/entry['llama_server']).with_name('ggml.dll').read_bytes()==b'dependency'

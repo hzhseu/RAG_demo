@@ -1,3 +1,4 @@
+import json
 import hashlib
 import shutil
 import tempfile
@@ -50,6 +51,7 @@ def build(directory, name, output, cache, engines, cancel, excluded=(), progress
     docs_in = report.pop("documents")
     report.update(status="building", included=[], name=name, total_pages=0,
                   scanned_pages=sum(d["pages"] for d in docs_in))
+    report['model'] = getattr(engines,'model_identity',{'id':'default'})
     report_path = output.with_suffix(".report.json")
     stage = 'report'
     try:
@@ -68,8 +70,10 @@ def build(directory, name, output, cache, engines, cancel, excluded=(), progress
             for doc in docs_in:
                 check_cancel(cancel)
                 stage = 'cache'
-                key = hashlib.sha256((doc["sha256"] + PARSER_VERSION + engines.signature).encode()).hexdigest()
+                key = hashlib.sha256(("parse-v2" + doc["sha256"] + PARSER_VERSION + getattr(engines,"parse_signature",engines.signature)).encode()).hexdigest()
                 cached = cache / key
+                generated_key = hashlib.sha256((key + engines.signature).encode()).hexdigest()
+                generated = cache / 'generation-v2' / (generated_key + '.json')
                 folder = root / "documents" / doc["id"]
                 try:
                     # Cache is trusted only after verifying every cached file.
@@ -103,9 +107,16 @@ def build(directory, name, output, cache, engines, cancel, excluded=(), progress
                         raise BuildError("未提取到可检索内容，请检查文档")
                     stage = 'organize'
                     progress({"stage": stage, "document": doc["name"]})
-                    if (cached / "organization.json").exists():
-                        organized = read_json(cached / "organization.json")
-                    else:
+                    organized = None
+                    if generated.exists():
+                        try:
+                            record = read_json(generated)
+                            value = record['result']
+                            if record['sha256'] == hashlib.sha256(json.dumps(value,sort_keys=True).encode()).hexdigest():
+                                organized = value
+                        except (OSError,ValueError,KeyError,TypeError):
+                            pass
+                    if organized is None:
                         if hasattr(engines, 'organize_with_progress'):
                             def organize_progress(event):
                                 nonlocal stage
@@ -116,8 +127,8 @@ def build(directory, name, output, cache, engines, cancel, excluded=(), progress
                         else:
                             organized = engines.organize(doc_chunks, cancel)
                         check_cancel(cancel)
-                        write_json(cached / "organization.json", organized)
-                        write_json(cached / "ready.json", {p.relative_to(cached).as_posix(): digest(p) for p in cached.rglob("*") if p.is_file() and p.name != "ready.json" and not p.name.endswith(".writing")})
+                        organized['model'] = getattr(engines,'model_identity',{'id':'default'})
+                        write_json(generated, {'result':organized,'sha256':hashlib.sha256(json.dumps(organized,sort_keys=True).encode()).hexdigest()})
                     document = {k: v for k, v in doc.items() if k != "path"} | organized | {"source": f"documents/{doc['id']}/source.pptx", "preview": f"documents/{doc['id']}/preview.pdf"}
                     candidates.append((doc, document, doc_chunks, folder))
                     completed_pages += doc["pages"]

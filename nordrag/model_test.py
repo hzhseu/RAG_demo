@@ -22,9 +22,9 @@ from pydantic import BaseModel, Field, model_validator
 
 from .config import app_root, asset, load_config
 from .diagnostics import describe_error
-from .engines import LlamaServer, free_port
+from .engines import LlamaServer, free_port, completion_payload
 from .util import digest
-from .model_test_models import load_models, model_options
+from .chat_models import load_models, model_options, identity
 
 
 class TestRequest(BaseModel):
@@ -78,7 +78,7 @@ class TestRunner:
     def __init__(self, cfg, server, models=None, server_factory=None):
         self.cfg, self.server = cfg, server
         self.models = models or load_models(cfg)
-        self.model_id = 'default'
+        self.model_id = cfg.get('model_id','default')
         self.server_factory = server_factory or (lambda config: LlamaServer(config, 'chat_model'))
         self.sessions = {}
         self.session_id = None
@@ -106,7 +106,14 @@ class TestRunner:
         except (ValueError, OSError) as error:
             raise HTTPException(422, str(error)) from error
         replacement = self.server_factory(cfg)
-        self.server.stop()
+        previous=self.server
+        previous.stop()
+        try:replacement.start()
+        except Exception as exc:
+            replacement.stop()
+            try:previous.start()
+            except Exception as recovery:raise HTTPException(422,f'新模型加载失败：{exc}；旧模型恢复失败：{recovery}') from exc
+            raise HTTPException(422,f'新模型加载失败，已恢复旧模型：{exc}') from exc
         self.server, self.cfg, self.model_id = replacement, cfg, model_id
 
     def new_session(self, model_id=None):
@@ -117,7 +124,7 @@ class TestRunner:
             self.switch_model(model_id or self.model_id)
             sid = uuid.uuid4().hex
             self.sessions[sid] = {
-                'id': sid, 'model_id': self.model_id, 'model_name': self.models[self.model_id]['name'],
+                'id': sid, 'model_identity':identity(self.cfg), 'model_id': self.model_id, 'model_name': self.models[self.model_id]['name'],
                 'title': '新对话', 'mode': 'chat', 'material': '', 'messages': [], 'turn_ids': [],
             }
             self.session_id = sid
@@ -187,7 +194,7 @@ class TestRunner:
                 'request': body.model_dump(), 'messages': messages,
                 'model': Path(self.cfg['chat_model']).name,
                 'model_sha256': self.cfg.get('chat_model_sha256'),
-                'parameters': {'temperature': .1, 'max_tokens': body.max_tokens,
+                'parameters': {**self.cfg.get('generation',{'temperature': .1}), 'chat_template_kwargs':self.cfg.get('chat_template_kwargs',{}), 'max_tokens': body.max_tokens,
                                'context': self.cfg.get('context', 8192), 'threads': self.cfg.get('threads', 4), 'gpu_layers': 0},
                 'load_seconds': None, 'first_token_seconds': None, 'elapsed_seconds': 0,
                 'input_tokens': None, 'output_tokens': None, 'finish_reason': None,
@@ -241,7 +248,7 @@ class TestRunner:
             if self.cancel.is_set():
                 return
             messages = self.get(job_id)['messages']
-            formatted = self.server.client.post('/apply-template', json={'messages': messages, 'add_generation_prompt': True})
+            formatted = self.server.client.post('/apply-template', json={'messages': messages, 'add_generation_prompt': True, 'chat_template_kwargs': self.cfg.get('chat_template_kwargs',{})})
             formatted.raise_for_status()
             prompt_tokens = self.server.count(formatted.json()['prompt'])
             self.update(job_id, input_tokens=prompt_tokens)
@@ -250,8 +257,7 @@ class TestRunner:
             if self.cancel.is_set():
                 return
             self.update(job_id, status='generating')
-            payload = {'messages': messages, 'stream': True, 'stream_options': {'include_usage': True},
-                       'temperature': .1, 'max_tokens': body.max_tokens}
+            payload = completion_payload(self.cfg,messages,body.max_tokens)
             completed = False
             with self.server.client.stream('POST', '/v1/chat/completions', json=payload) as response:
                 response.raise_for_status()
@@ -399,11 +405,16 @@ def main(argv=None):
     try:
         cfg = load_config(find_config(args.config))
         print('正在校验回答模型，请稍候…', flush=True)
-        validate_runtime(cfg)
         catalog_path = args.models
         if catalog_path is None:
             catalog_path = next((p for p in (app_root() / 'model-test-models.json', Path(cfg['root']) / 'model-test-models.json') if p.is_file()), None)
-        app = create_app(cfg, models=load_models(cfg, catalog_path))
+        models=load_models(cfg)
+        if catalog_path:
+            custom=load_models(cfg,catalog_path)
+            models.update({k:v for k,v in custom.items() if k!='default'})
+        cfg=models[models.default_id]['cfg']
+        validate_runtime(cfg)
+        app = create_app(cfg, models=models)
         port = free_port()
         url = f'http://127.0.0.1:{port}/#token={app.state.token}'
         print(f'RadioMind 模型测试：{url}\n无需知识库。保留此窗口；Ctrl+C 退出并释放模型。', flush=True)

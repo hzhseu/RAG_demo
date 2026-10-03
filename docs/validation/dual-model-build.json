@@ -1,0 +1,57 @@
+{
+  "pass": true,
+  "real_exe": true,
+  "embedding_unchanged": "Qwen3-Embedding-0.6B:06507c7b42688469c4e7298b0a1e16deff06caf291cf0a5b278c308249c3e439:last:query-instruction-v1",
+  "vectors_identical": true,
+  "parse_cache_entries": 1,
+  "generation_cache_entries": 2,
+  "new_model": {
+    "id": "qwen35-4b",
+    "name": "Qwen3.5-4B",
+    "file": "Qwen3.5-4B-Q4_K_M.gguf",
+    "sha256": "00fe7986ff5f6b463e62455821146049db6f9313603938a70800d1fb69ef11a4",
+    "generation": {
+      "temperature": 0.7,
+      "top_p": 0.8,
+      "top_k": 20,
+      "min_p": 0,
+      "presence_penalty": 1.5,
+      "repeat_penalty": 1.0
+    },
+    "chat_template_kwargs": {
+      "enable_thinking": false
+    },
+    "context": 8192,
+    "threads": 4,
+    "engine": "llama-server.exe",
+    "engine_sha256": "fb3b19e16c61bf6aa4bba38d95c010442adaf5c0ce487c35a19ef76736038011"
+  },
+  "old_model": {
+    "id": "default",
+    "name": "Qwen3-4B-Instruct-2507",
+    "file": "Qwen3-4B-Instruct-2507-Q4_K_M.gguf",
+    "sha256": "3605803b982cb64aead44f6c1b2ae36e3acdb41d8e46c8a94c6533bc4c67e597",
+    "generation": {
+      "temperature": 0.1
+    },
+    "chat_template_kwargs": {},
+    "context": 8192,
+    "threads": 4,
+    "engine": "llama-server.exe",
+    "engine_sha256": "fb3b19e16c61bf6aa4bba38d95c010442adaf5c0ce487c35a19ef76736038011"
+  },
+  "new_summary": "1. 星河设备 Alpha 标准保修期为 24 个月，自验收日起计算 [1]。\n2. 2025 年星河设备 Alpha 收入为 120.50 EUR，同比增长 12.5% [1]。\n3. 人为损坏不在星河设备 Alpha 的保修范围内 [1]。",
+  "old_summary": "- 星河设备 Alpha 的标准保修期为 24 个月，从验收日起计算。[1]  \n- 2025 年星河设备 Alpha 的收入为 120.50 EUR。[1]  \n- 2025 年星河设备 Alpha 的收入同比增长 12.5%。[1]  \n- 人为损坏不在星河设备 Alpha 的保修范围内。[1]",
+  "new_tags": [
+    "Warranty Terms",
+    "Customer Support",
+    "Coverage Exclusions"
+  ],
+  "old_tags": [
+    "保修期",
+    "收入",
+    "同比增长",
+    "设备",
+    "财务"
+  ]
+}

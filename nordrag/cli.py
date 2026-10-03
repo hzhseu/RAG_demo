@@ -7,6 +7,7 @@ from .builder import build, BuildError
 from .diagnostics import describe_error, STAGES
 from .config import load_config, preflight
 from .engines import Engines
+from .chat_models import load_models, unavailable_reason
 from .parsing import scan
 from .package import validate
 from .util import data_home, read_json
@@ -47,6 +48,7 @@ def main(argv=None):
     b.add_argument("--name", required=True)
     b.add_argument("--output", type=Path, required=True)
     b.add_argument("--exclude", action="append", default=[], help="相对输入目录的文件路径，可重复")
+    b.add_argument("--model", help="回答模型 ID（见 chat-models.json）")
     b.add_argument("--yes", action="store_true")
     s = sub.add_parser("scan")
     s.add_argument("input", type=Path)
@@ -67,8 +69,17 @@ def main(argv=None):
         cfg = load_config(args.config)
         if args.command == "doctor":
             errors = preflight(cfg, build=True)
+            errors += [reason for entry in load_models(cfg).values() if (reason:=unavailable_reason(entry['cfg']))]
             print("\n".join(errors) if errors else "运行组件与模型校验通过")
             return 1 if errors else 0
+        models=load_models(cfg)
+        if interactive:
+            print('回答模型：')
+            for key, entry in models.items(): print(f"  {key}: {entry['name']}")
+            args.model=input(f'模型 ID（默认 {models.default_id}）：').strip() or models.default_id
+        selected=getattr(args,'model',None) or models.default_id
+        if selected not in models:raise ValueError('模型 ID 不在 chat-models.json 中')
+        chat_cfg=models[selected]['cfg']
         inventory = scan(args.input, args.exclude)
         print(json.dumps(inventory, ensure_ascii=False, indent=2))
         print(f"文件数 {len(inventory['documents'])}，总页数 {sum(d['pages'] for d in inventory['documents'])}")
@@ -79,7 +90,7 @@ def main(argv=None):
             raise RuntimeError("已有构建或生成任务，请等待完成")
         engines = None
         try:
-            engines = Engines(cfg, build=True)
+            engines = Engines(cfg, build=True, chat_cfg=chat_cfg)
             result = build(args.input, args.name, args.output, data_home() / "cache", engines, threading.Event(), args.exclude, print_progress)
             logger.info('build_completed documents=%s pages=%s', len(result['included']), result['total_pages'])
             print(json.dumps(result, ensure_ascii=False, indent=2))

@@ -14,6 +14,7 @@ import httpx
 import numpy as np
 from pypdf import PdfReader
 from .config import asset, preflight, app_root
+from .chat_models import identity, unavailable_reason
 from .generation import summarize_document, SYSTEM
 from .processes import track, run_owned
 from .diagnostics import ComponentUnavailableError, describe_error
@@ -27,6 +28,12 @@ def free_port():
 
 def hidden_flags():
     return subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0
+
+
+def completion_payload(cfg, messages, max_tokens):
+    return {**cfg.get('generation', {'temperature': .1}), 'messages': messages,
+            'stream': True, 'stream_options': {'include_usage': True}, 'max_tokens': max_tokens,
+            'chat_template_kwargs': cfg.get('chat_template_kwargs', {})}
 
 
 class LlamaServer:
@@ -45,6 +52,8 @@ class LlamaServer:
         args = [str(asset(self.cfg, "llama_server")), "-m", str(asset(self.cfg, self.model_key)), "--host", "127.0.0.1", "--port", str(port), "--api-key", key, "-t", str(self.cfg.get("threads", 4)), "-c", str(8192 if self.embedding else self.cfg.get("context", 8192)), "-ngl", "0", "--parallel", "1", "--no-webui"]
         if self.embedding:
             args += ["--embedding", "--pooling", "last", "-b", "8192", "-ub", "8192"]
+        elif self.cfg.get('chat_template_kwargs'):
+            args += ['--jinja', '--chat-template-kwargs', json.dumps(self.cfg['chat_template_kwargs'])]
         self.process = track(subprocess.Popen(args, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, creationflags=hidden_flags()))
         self.client = httpx.Client(base_url=f"http://127.0.0.1:{port}", headers={"Authorization": f"Bearer {key}"}, timeout=httpx.Timeout(600, connect=5), trust_env=False)
         for _ in range(240):
@@ -78,6 +87,13 @@ class LlamaServer:
         r.raise_for_status()
         return len(r.json()["tokens"])
 
+    def count_messages(self, messages):
+        self.start()
+        response = self.client.post('/apply-template', json={'messages': messages, 'add_generation_prompt': True,
+            'chat_template_kwargs': self.cfg.get('chat_template_kwargs', {})})
+        response.raise_for_status()
+        return self.count(response.json()['prompt'])
+
     def stream(self, messages, cancel, max_tokens=768):
         self.start()
         finished = threading.Event()
@@ -91,25 +107,41 @@ class LlamaServer:
         watcher = threading.Thread(target=watch_cancel, daemon=True)
         watcher.start()
         try:
-            with self.client.stream("POST", "/v1/chat/completions", json={"messages": messages, "stream": True, "temperature": 0.1, "max_tokens": max_tokens}) as response:
+            completed, content = False, False
+            payload = completion_payload(self.cfg, messages, max_tokens)
+            with self.client.stream("POST", "/v1/chat/completions", json=payload) as response:
                 response.raise_for_status()
                 for line in response.iter_lines():
                     if cancel.is_set():
                         return
-                    if line.startswith("data: ") and line != "data: [DONE]":
+                    if line == 'data: [DONE]':
+                        completed = True
+                        break
+                    if line.startswith('data: '):
                         item = json.loads(line[6:])
-                        yield item["choices"][0].get("delta", {}).get("content", "") or ""
+                        if item.get('error'):
+                            raise RuntimeError(str(item['error']))
+                        for choice in item.get('choices', []):
+                            part = choice.get('delta', {}).get('content') or ''
+                            content = content or bool(part)
+                            yield part
+            if not cancel.is_set() and (not completed or not content):
+                raise RuntimeError('模型返回中断或空回答，请重试')
         finally:
             finished.set()
             watcher.join(timeout=1)
 
 
 class Engines:
-    def __init__(self, cfg, build=False):
-        errors = preflight(cfg, build)
+    def __init__(self, cfg, build=False, chat_cfg=None, allow_unavailable_chat=False):
+        errors = preflight(cfg, build, not allow_unavailable_chat and chat_cfg is None)
         if errors:
             raise RuntimeError("\n".join(errors))
-        self.cfg = cfg
+        if chat_cfg:
+            reason=unavailable_reason(chat_cfg)
+            if reason:raise ValueError(reason)
+        self.base_cfg = dict(cfg)
+        self.cfg = cfg = dict(chat_cfg or cfg)
         self.build_mode = build
         self.embedding_id = "Qwen3-Embedding-0.6B:" + cfg["embedding_model_sha256"] + ":last:query-instruction-v1"
         self.identifiers = {
@@ -124,8 +156,47 @@ class Engines:
         pipeline = {"runtime": {k: v for k, v in cfg.items() if k != "root"}, "adapter_version": 2, "grounding_prompt": SYSTEM}
         self.signature = hashlib.sha256(json.dumps(pipeline, sort_keys=True).encode()).hexdigest()
         self.chat = LlamaServer(cfg, "chat_model")
-        self.embedding = LlamaServer(cfg, "embedding_model", True)
+        self.embedding = LlamaServer(self.base_cfg, "embedding_model", True)
+        self._refresh_identity()
+        lock = Path(self.base_cfg.get('root', app_root())) / 'runtime' / 'runtime-lock.json'
+        components = json.loads(lock.read_text(encoding='utf-8')) if lock.exists() else {}
+        parse_components = {k:v for k,v in components.items() if k != 'sources.json' and not k.startswith(('models/', 'llama/','llama-'))}
+        self.parse_signature = hashlib.sha256(json.dumps(parse_components,sort_keys=True).encode()).hexdigest()
         atexit.register(self.close)
+
+    @property
+    def model_identity(self):
+        return identity(self.cfg)
+
+    def _refresh_identity(self):
+        self.identifiers['chat'] = self.model_identity
+        self.identifiers['context_tokens'] = self.cfg.get('context',8192)
+        self.identifiers['cpu_threads'] = self.cfg.get('threads',4)
+        # Include all generation prompts and aggregation rules in cache identity.
+        from .generation import PROMPT_REVISION
+        prompts = SYSTEM.encode() + PROMPT_REVISION.encode()
+        self.signature = hashlib.sha256(json.dumps(self.model_identity,sort_keys=True).encode()+prompts+b'classification-v1').hexdigest()
+
+    def select_model(self, cfg):
+        reason = unavailable_reason(cfg)
+        if reason: raise ValueError(reason)
+        previous, old = self.cfg, self.chat
+        old.stop()
+        self.chat_unavailable=True
+        candidate = LlamaServer(cfg,'chat_model')
+        try:
+            candidate.start()
+        except Exception as exc:
+            candidate.stop()
+            try:
+                old.start()
+                self.chat_unavailable=False
+            except Exception as recovery:
+                raise RuntimeError(f'{exc}；旧模型恢复失败：{recovery}') from exc
+            raise RuntimeError(f'{exc}；已恢复旧模型') from exc
+        self.chat, self.cfg = candidate, dict(cfg)
+        self.chat_unavailable=False
+        self._refresh_identity()
 
     def close(self):
         self.chat.stop()
@@ -156,6 +227,8 @@ class Engines:
         return self.chat.count(text)
 
     def stream(self, messages, cancel, max_tokens=768):
+        if self.chat.count_messages(messages) + max_tokens + 16 > int(self.cfg.get('context',8192)):
+            raise ValueError('输入与输出上限超过所选模型的上下文容量，请缩短输入')
         yield from self.chat.stream(messages, cancel, max_tokens)
 
     def organize(self, chunks, cancel):

@@ -44,3 +44,15 @@ def test_topic_summarizes_each_document_before_synthesis():
     assert 'Alpha warranty' not in calls[1]
     assert 'One' in calls[2] and 'Two' in calls[2]
     assert {c['doc_id'] for c in result['citations']}=={'one','two'}
+
+
+def test_topic_respects_small_model_context():
+    class Model:
+        cfg={'context':2048}
+        def count(self,text):return len(text)//4
+        def stream(self,messages,cancel,max_tokens=768):
+            assert sum(self.count(m['content'])+16 for m in messages)+max_tokens+16 <= 2048
+            yield 'Finding [1]'
+    chunks=[{'id':str(i),'doc_id':'one','page':i+1,'kind':'text','text':'Fact. '*400} for i in range(4)]
+    result=summarize_topic(Model(),chunks,threading.Event())
+    assert len(result['citations'])==4

@@ -1,0 +1,173 @@
+{
+  "pass": true,
+  "clean_path": true,
+  "statuses": [
+    {
+      "app_version": "0.1.0",
+      "model": "Qwen3.5-4B",
+      "knowledge": {
+        "name": "Nord 测试知识库",
+        "embedding": "Qwen3-Embedding-0.6B:06507c7b42688469c4e7298b0a1e16deff06caf291cf0a5b278c308249c3e439:last:query-instruction-v1",
+        "parser": "2",
+        "engine_signature": "a6138c24c0f47420146c0e8dab8374c600f293fad0fb3bdd2db1880fc86e78a4",
+        "documents": 2,
+        "pages": 6,
+        "format": 1,
+        "built_at": "2026-10-01T21:44:00.979106+00:00",
+        "files": {
+          "build-report.json": "090b046698ec7b43c0344f6d63e300a459f1b6b43830c03169fb339e90b599e7",
+          "chunks.json": "a7ac746c18ca1c482bc776f74e0c8d49b2c8d8f402d8c04a3be04c038e2664ce",
+          "documents/81ec33251a4407b43e25616c9f9aa2db10501edaed207640c8e64e8c8a3117e7/pages.json": "b02249bff01976e3509c8f828add891e5cd314a816e9abbc54d03948eca5cee4",
+          "documents/81ec33251a4407b43e25616c9f9aa2db10501edaed207640c8e64e8c8a3117e7/preview.pdf": "935fc5d49c403907e72286f57d9ee6a77dad83cdc583a29d27eb7c0844f8488d",
+          "documents/81ec33251a4407b43e25616c9f9aa2db10501edaed207640c8e64e8c8a3117e7/source.pptx": "81ec33251a4407b43e25616c9f9aa2db10501edaed207640c8e64e8c8a3117e7",
+          "documents/ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2/images/p3-4.png": "f75496e8eeca61e5fb02b7434f92bca724b2785a2aafda3ffe6ea8d87d463bb1",
+          "documents/ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2/pages.json": "a1b903bf3aa3d033011e095902152ef668d114ee0e00e295fcecffe7547293c4",
+          "documents/ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2/preview.pdf": "3e0915c5f17cf6ff5e49d87b3f96ddcdcf72738bfd68737fe2dce93067f0918c",
+          "documents/ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2/source.pptx": "ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2",
+          "documents.json": "f4e8e6ed04a30239ce0f77027f8091b0949f9d8b989873f5bf17c096dd2f442f",
+          "index.sqlite": "09109aeac715c819b0aea6e6faec70da4491090ff9aeddd4ec16ed815f659d04",
+          "vectors.npy": "96f02ea4dd2cfc19dcc9446e71897ca758a3e4477022ab1d185dce74bbda9ff6"
+        },
+        "version": "4da51429ee474f747ebe"
+      },
+      "sequence": 1,
+      "busy": false,
+      "switching": false,
+      "startup_error": null,
+      "model_id": "qwen35-4b",
+      "model_identity": {
+        "id": "qwen35-4b",
+        "name": "Qwen3.5-4B",
+        "file": "Qwen3.5-4B-Q4_K_M.gguf",
+        "sha256": "00fe7986ff5f6b463e62455821146049db6f9313603938a70800d1fb69ef11a4",
+        "generation": {
+          "temperature": 0.7,
+          "top_p": 0.8,
+          "top_k": 20,
+          "min_p": 0,
+          "presence_penalty": 1.5,
+          "repeat_penalty": 1.0
+        },
+        "chat_template_kwargs": {
+          "enable_thinking": false
+        },
+        "context": 8192,
+        "threads": 4,
+        "engine": "llama-server.exe",
+        "engine_sha256": "fb3b19e16c61bf6aa4bba38d95c010442adaf5c0ce487c35a19ef76736038011"
+      },
+      "model_sequence": 1,
+      "model_state": "ready",
+      "model_error": null
+    },
+    {
+      "app_version": "0.1.0",
+      "model": "Qwen3-4B-Instruct-2507",
+      "knowledge": {
+        "name": "Nord 测试知识库",
+        "embedding": "Qwen3-Embedding-0.6B:06507c7b42688469c4e7298b0a1e16deff06caf291cf0a5b278c308249c3e439:last:query-instruction-v1",
+        "parser": "2",
+        "engine_signature": "a6138c24c0f47420146c0e8dab8374c600f293fad0fb3bdd2db1880fc86e78a4",
+        "documents": 2,
+        "pages": 6,
+        "format": 1,
+        "built_at": "2026-10-01T21:44:00.979106+00:00",
+        "files": {
+          "build-report.json": "090b046698ec7b43c0344f6d63e300a459f1b6b43830c03169fb339e90b599e7",
+          "chunks.json": "a7ac746c18ca1c482bc776f74e0c8d49b2c8d8f402d8c04a3be04c038e2664ce",
+          "documents/81ec33251a4407b43e25616c9f9aa2db10501edaed207640c8e64e8c8a3117e7/pages.json": "b02249bff01976e3509c8f828add891e5cd314a816e9abbc54d03948eca5cee4",
+          "documents/81ec33251a4407b43e25616c9f9aa2db10501edaed207640c8e64e8c8a3117e7/preview.pdf": "935fc5d49c403907e72286f57d9ee6a77dad83cdc583a29d27eb7c0844f8488d",
+          "documents/81ec33251a4407b43e25616c9f9aa2db10501edaed207640c8e64e8c8a3117e7/source.pptx": "81ec33251a4407b43e25616c9f9aa2db10501edaed207640c8e64e8c8a3117e7",
+          "documents/ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2/images/p3-4.png": "f75496e8eeca61e5fb02b7434f92bca724b2785a2aafda3ffe6ea8d87d463bb1",
+          "documents/ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2/pages.json": "a1b903bf3aa3d033011e095902152ef668d114ee0e00e295fcecffe7547293c4",
+          "documents/ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2/preview.pdf": "3e0915c5f17cf6ff5e49d87b3f96ddcdcf72738bfd68737fe2dce93067f0918c",
+          "documents/ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2/source.pptx": "ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2",
+          "documents.json": "f4e8e6ed04a30239ce0f77027f8091b0949f9d8b989873f5bf17c096dd2f442f",
+          "index.sqlite": "09109aeac715c819b0aea6e6faec70da4491090ff9aeddd4ec16ed815f659d04",
+          "vectors.npy": "96f02ea4dd2cfc19dcc9446e71897ca758a3e4477022ab1d185dce74bbda9ff6"
+        },
+        "version": "4da51429ee474f747ebe"
+      },
+      "sequence": 1,
+      "busy": false,
+      "switching": false,
+      "startup_error": null,
+      "model_id": "default",
+      "model_identity": {
+        "id": "default",
+        "name": "Qwen3-4B-Instruct-2507",
+        "file": "Qwen3-4B-Instruct-2507-Q4_K_M.gguf",
+        "sha256": "3605803b982cb64aead44f6c1b2ae36e3acdb41d8e46c8a94c6533bc4c67e597",
+        "generation": {
+          "temperature": 0.1
+        },
+        "chat_template_kwargs": {},
+        "context": 8192,
+        "threads": 4,
+        "engine": "llama-server.exe",
+        "engine_sha256": "fb3b19e16c61bf6aa4bba38d95c010442adaf5c0ce487c35a19ef76736038011"
+      },
+      "model_sequence": 2,
+      "model_state": "ready",
+      "model_error": null
+    },
+    {
+      "app_version": "0.1.0",
+      "model": "Qwen3.5-4B",
+      "knowledge": {
+        "name": "Nord 测试知识库",
+        "embedding": "Qwen3-Embedding-0.6B:06507c7b42688469c4e7298b0a1e16deff06caf291cf0a5b278c308249c3e439:last:query-instruction-v1",
+        "parser": "2",
+        "engine_signature": "a6138c24c0f47420146c0e8dab8374c600f293fad0fb3bdd2db1880fc86e78a4",
+        "documents": 2,
+        "pages": 6,
+        "format": 1,
+        "built_at": "2026-10-01T21:44:00.979106+00:00",
+        "files": {
+          "build-report.json": "090b046698ec7b43c0344f6d63e300a459f1b6b43830c03169fb339e90b599e7",
+          "chunks.json": "a7ac746c18ca1c482bc776f74e0c8d49b2c8d8f402d8c04a3be04c038e2664ce",
+          "documents/81ec33251a4407b43e25616c9f9aa2db10501edaed207640c8e64e8c8a3117e7/pages.json": "b02249bff01976e3509c8f828add891e5cd314a816e9abbc54d03948eca5cee4",
+          "documents/81ec33251a4407b43e25616c9f9aa2db10501edaed207640c8e64e8c8a3117e7/preview.pdf": "935fc5d49c403907e72286f57d9ee6a77dad83cdc583a29d27eb7c0844f8488d",
+          "documents/81ec33251a4407b43e25616c9f9aa2db10501edaed207640c8e64e8c8a3117e7/source.pptx": "81ec33251a4407b43e25616c9f9aa2db10501edaed207640c8e64e8c8a3117e7",
+          "documents/ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2/images/p3-4.png": "f75496e8eeca61e5fb02b7434f92bca724b2785a2aafda3ffe6ea8d87d463bb1",
+          "documents/ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2/pages.json": "a1b903bf3aa3d033011e095902152ef668d114ee0e00e295fcecffe7547293c4",
+          "documents/ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2/preview.pdf": "3e0915c5f17cf6ff5e49d87b3f96ddcdcf72738bfd68737fe2dce93067f0918c",
+          "documents/ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2/source.pptx": "ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2",
+          "documents.json": "f4e8e6ed04a30239ce0f77027f8091b0949f9d8b989873f5bf17c096dd2f442f",
+          "index.sqlite": "09109aeac715c819b0aea6e6faec70da4491090ff9aeddd4ec16ed815f659d04",
+          "vectors.npy": "96f02ea4dd2cfc19dcc9446e71897ca758a3e4477022ab1d185dce74bbda9ff6"
+        },
+        "version": "4da51429ee474f747ebe"
+      },
+      "sequence": 1,
+      "busy": false,
+      "switching": false,
+      "startup_error": null,
+      "model_id": "qwen35-4b",
+      "model_identity": {
+        "id": "qwen35-4b",
+        "name": "Qwen3.5-4B",
+        "file": "Qwen3.5-4B-Q4_K_M.gguf",
+        "sha256": "00fe7986ff5f6b463e62455821146049db6f9313603938a70800d1fb69ef11a4",
+        "generation": {
+          "temperature": 0.7,
+          "top_p": 0.8,
+          "top_k": 20,
+          "min_p": 0,
+          "presence_penalty": 1.5,
+          "repeat_penalty": 1.0
+        },
+        "chat_template_kwargs": {
+          "enable_thinking": false
+        },
+        "context": 8192,
+        "threads": 4,
+        "engine": "llama-server.exe",
+        "engine_sha256": "fb3b19e16c61bf6aa4bba38d95c010442adaf5c0ce487c35a19ef76736038011"
+      },
+      "model_sequence": 3,
+      "model_state": "ready",
+      "model_error": null
+    }
+  ]
+}

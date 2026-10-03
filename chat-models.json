@@ -1,0 +1,39 @@
+{
+  "default_model": "qwen35-4b",
+  "models": [
+    {
+      "id": "default",
+      "name": "Qwen3-4B-Instruct-2507",
+      "path": "runtime/models/Qwen3-4B-Instruct-2507-Q4_K_M.gguf",
+      "sha256": "3605803b982cb64aead44f6c1b2ae36e3acdb41d8e46c8a94c6533bc4c67e597",
+      "context": 8192,
+      "threads": 4,
+      "generation": {
+        "temperature": 0.1
+      },
+      "llama_server": "runtime/llama/llama-server.exe"
+    },
+    {
+      "id": "qwen35-4b",
+      "name": "Qwen3.5-4B",
+      "path": "runtime/models/Qwen3.5-4B-Q4_K_M.gguf",
+      "sha256": "00fe7986ff5f6b463e62455821146049db6f9313603938a70800d1fb69ef11a4",
+      "context": 8192,
+      "threads": 4,
+      "generation": {
+        "temperature": 0.7,
+        "top_p": 0.8,
+        "top_k": 20,
+        "min_p": 0,
+        "presence_penalty": 1.5,
+        "repeat_penalty": 1.0
+      },
+      "chat_template_kwargs": {
+        "enable_thinking": false
+      },
+      "revision": "e87f176479d0855a907a41277aca2f8ee7a09523",
+      "source": "https://huggingface.co/unsloth/Qwen3.5-4B-GGUF",
+      "llama_server": "runtime/llama/llama-server.exe"
+    }
+  ]
+}

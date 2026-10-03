@@ -24,8 +24,8 @@ def asset(cfg, key):
     return p if p.is_absolute() else Path(cfg["root"]) / p
 
 
-def preflight(cfg, build=False):
-    keys = ["llama_server", "chat_model", "embedding_model"]
+def preflight(cfg, build=False, check_chat=True):
+    keys = ["llama_server", "embedding_model"] + (["chat_model"] if check_chat else [])
     if build:
         keys += ["soffice", "ocr_python", "ocr_detection", "ocr_recognition"]
     errors = []
@@ -33,7 +33,7 @@ def preflight(cfg, build=False):
         if key not in cfg or not asset(cfg, key).exists():
             errors.append(f"缺少 {key}: {cfg.get(key, '(未配置)')}")
     if not errors:
-        for key in ("chat_model", "embedding_model"):
+        for key in (["chat_model"] if check_chat else []) + ["embedding_model"]:
             expected = cfg.get(key + "_sha256")
             if not expected:
                 errors.append(f"未固定 {key} SHA256，请运行 scripts/freeze_runtime.py")
@@ -50,6 +50,10 @@ def preflight(cfg, build=False):
                 errors.append("运行组件清单摘要不匹配")
             else:
                 for name, expected in files.items():
+                    # Answer weights are optional at startup and validated by the
+                    # model registry before use; embedding remains mandatory.
+                    if not check_chat and name.startswith('models/') and Path(name).name != asset(cfg,'embedding_model').name:
+                        continue
                     path = (runtime / name).resolve()
                     if not path.is_relative_to(runtime.resolve()) or not path.is_file() or digest(path) != expected:
                         errors.append(f"运行组件校验失败：{name}")

@@ -29,11 +29,10 @@ def download(url, path):
     return path
 
 
-def model(repo, filename):
-    metadata = httpx.get(f"https://huggingface.co/api/models/{repo}", timeout=60, follow_redirects=True).json()
-    revision = metadata["sha"]
+def model(repo, filename, revision, expected):
     url = f"https://huggingface.co/{repo}/resolve/{revision}/{filename}"
     path = download(url, RUNTIME / "models" / filename)
+    if sha(path) != expected:raise ValueError(f'Model SHA256 mismatch: {filename}')
     return {"name": filename, "source": url, "revision": revision, "sha256": sha(path), "license": "Apache-2.0 (see model card)"}
 
 
@@ -48,7 +47,7 @@ def sha(path):
 def main():
     RUNTIME.mkdir(exist_ok=True)
     with concurrent.futures.ThreadPoolExecutor(max_workers=4) as pool:
-        jobs = [pool.submit(model, "unsloth/Qwen3-4B-Instruct-2507-GGUF", "Qwen3-4B-Instruct-2507-Q4_K_M.gguf"), pool.submit(model, "Qwen/Qwen3-Embedding-0.6B-GGUF", "Qwen3-Embedding-0.6B-Q8_0.gguf")]
+        jobs = [pool.submit(model, "unsloth/Qwen3-4B-Instruct-2507-GGUF", "Qwen3-4B-Instruct-2507-Q4_K_M.gguf", "a06e946bb6b655725eafa393f4a9745d460374c9", "3605803b982cb64aead44f6c1b2ae36e3acdb41d8e46c8a94c6533bc4c67e597"), pool.submit(model, "Qwen/Qwen3-Embedding-0.6B-GGUF", "Qwen3-Embedding-0.6B-Q8_0.gguf", "370f27d7550e0def9b39c1f16d3fbaa13aa67728", "06507c7b42688469c4e7298b0a1e16deff06caf291cf0a5b278c308249c3e439"), pool.submit(model,"unsloth/Qwen3.5-4B-GGUF","Qwen3.5-4B-Q4_K_M.gguf","e87f176479d0855a907a41277aca2f8ee7a09523","00fe7986ff5f6b463e62455821146049db6f9313603938a70800d1fb69ef11a4")]
         url = "https://github.com/ggml-org/llama.cpp/releases/download/b11326/llama-b11326-bin-win-cpu-x64.zip"
         llama = pool.submit(download, url, RUNTIME / "downloads" / "llama-b11326.zip")
         for name in ("PP-OCRv5_mobile_det", "PP-OCRv5_mobile_rec"):

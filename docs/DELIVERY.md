@@ -4,7 +4,7 @@
 
 `runtime/llama`：固定版本 Windows CPU x64 llama.cpp，含 DLL。
 
-`runtime/models`：Qwen3-4B-Instruct-2507 Q4_K_M（社区 GGUF 转换，记录来源）与官方 Qwen3-Embedding-0.6B Q8_0。
+`runtime/models`：新增 Qwen3.5-4B Q4_K_M，保留 Qwen3-4B-Instruct-2507 Q4_K_M（社区 GGUF 转换，记录来源）与官方 Qwen3-Embedding-0.6B Q8_0。
 
 `runtime/ocr`：Python 3.13.7 Windows embeddable 完整目录，`python313._pth` 添加 `Lib/site-packages` 并开启 `import site`。在该目录安装 PaddlePaddle 3.3.1 和 PaddleOCR 3.5.0 的全部依赖；不可仅复制开发机 venv。
 

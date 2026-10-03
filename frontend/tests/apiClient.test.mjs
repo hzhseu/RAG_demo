@@ -37,3 +37,21 @@ test('a successful switch is not rejected when status polling already sees it', 
   client.sequence = 2;
   assert.equal((await client.json('/knowledge/switch', {method:'POST'})).sequence, 3);
 });
+
+test('model sequence travels with requests and rejects stale model bodies', async () => {
+  let client;
+  client = createApiClient('test', () => {}, async (url, init) => {
+    assert.equal(init.headers['X-Model-Sequence'], '2');
+    client.modelSequence = 3;
+    return Response.json({messages:[]});
+  });
+  client.modelSequence=2;
+  await assert.rejects(client.json('/sessions/a'), /模型已切换/);
+});
+
+test('model switch and session activation may update model sequence', async () => {
+  let client;
+  client=createApiClient('test',()=>{},async()=>{client.modelSequence=3;return Response.json({ok:true});});
+  client.modelSequence=2;
+  assert.equal((await client.json('/models/switch',{method:'POST'})).ok,true);
+});

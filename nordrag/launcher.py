@@ -33,12 +33,13 @@ def main(argv=None):
         clean_abandoned_work(home / "work")
         cfg = load_config(args.config)
         print('正在校验离线运行组件，请稍候…', flush=True)
-        engines = Engines(cfg)
+        engines = Engines(cfg, allow_unavailable_chat=True)
         static = app_root() / "frontend" / "dist"
         if not static.is_dir():
             raise RuntimeError("缺少前端构建，请先构建 frontend")
         token = secrets.token_urlsafe(32)
         app = create_app(None, None, engines, home, token, static)
+        if app.state.models: app.state.models.restore()
         manager = app.state.knowledge
         manager.restore(args.knowledge, choose=args.choose)
         port = free_port()

@@ -249,7 +249,7 @@ def test_launcher_opens_ui_without_forcing_dialog(packages, tmp_path, monkeypatc
     monkeypatch.setattr(launcher, 'app_root', lambda: tmp_path)
     monkeypatch.setattr(launcher, 'load_config', lambda path: {})
     monkeypatch.setattr(launcher, 'configure_logging', lambda *args: None)
-    monkeypatch.setattr(launcher, 'Engines', lambda config: engine)
+    monkeypatch.setattr(launcher, 'Engines', lambda config, **kwargs: engine)
     monkeypatch.setattr(engine, 'close', lambda: None, raising=False)
     snapshots = []
     monkeypatch.setattr(launcher.uvicorn, 'run', lambda app, **kwargs: snapshots.append(app.state.knowledge.status()))
