@@ -1,4 +1,4 @@
-# Nord · 离线 PPT 知识库
+# RadioMind · 离线 PPT 知识库
 
 Windows 本地 RAG Demo。知识库通过独立工具构建，浏览器用于对话、资料浏览、引用原页预览和标签整理。
 
@@ -20,9 +20,23 @@ Windows 本地 RAG Demo。知识库通过独立工具构建，浏览器用于对
 
 文档变化后重新构建，不支持版本回退。标签在本地保存，点击“导出知识库”可将修改随包迁移。`.ragkb` 包含原始 PPTX 和解析内容，不是加密文件。
 
+源码新版构建失败时，终端会列出失败文件、处理阶段、异常类型和原因，并显示本次 `.report.json` 的完整路径。该报告位于输出 `.ragkb` 旁边；例如 `部门.ragkb` 对应 `部门.report.json`。超时会显示中文提示，可先关闭其他高负载任务再重试；成功处理的缓存会被复用。若提示“输出已存在”，请换一个新的输出文件名。报告无法保存时仍会在终端显示原始错误，不会把旧报告当作本次结果。
+
+构建时生成总结或分类遇到模型连接／读取超时，会自动停止本次启动的聊天模型，缩小总结输入批次后重试一次（最多两次尝试）。终端会显示“自动恢复”和总结片段进度。成功处理的文档缓存继续复用；重试仍失败则保留详细错误，不会跳过失败文档或发布不完整知识库。交互问答不会自动重放已经输出的回答。
+
 交付文件夹约 5.4 GiB，含模型、OCR、转换程序、字体和测试知识库。使用说明与组件清单见 `docs/DELIVERY.md`，测试结果及待验证边界见 `docs/TEST_REPORT.md`，独立测试入口见 `docs/MODULE_TESTS.md`。真实界面截图位于 `docs/interface-preview.png`。
 
 ## 本地开发
+
+### 在界面选择知识库（源码新版）
+
+启动 `./.venv/Scripts/python.exe -m nordrag.launcher` 后，点击页面顶部“选择知识库”，再点击“打开本机文件”，在 Windows 文件窗口选择 `.ragkb` 文件。最近使用列表最多保留 10 个知识库，可直接点击切换，无需重启。文件始终在本机读取。
+
+首次使用或上次文件已移动时，软件仍会打开页面，提示选择知识库。正常启动会恢复上次打开的文件；加 `--choose` 可跳过恢复，直接进入未选库界面；`--knowledge 路径` 可指定启动时加载的文件。
+
+生成回答、专题总结或导出期间不能切换。取消选择、文件损坏或模型不兼容不会替换当前知识库。对话与标签按知识库版本保留；本地标签不会自动写回原 `.ragkb`，需要分享时仍使用“导出知识库”。其他已打开页面会自动同步所选知识库。
+
+请从启动程序自动打开的页面进入。出现“会话令牌无效”时，重新使用启动窗口给出的完整链接；选择知识库功能不会绕过访问验证。已有 EXE 交付包需重新打包后才能获得本功能。
 
 ```powershell
 python -m venv .venv
@@ -30,6 +44,7 @@ python -m venv .venv
 pnpm --dir frontend install --frozen-lockfile
 pnpm --dir frontend build
 ./.venv/Scripts/python.exe -m pytest
+node --test --test-isolation=none frontend/tests/apiClient.test.mjs
 ./.venv/Scripts/python.exe scripts/make_fixtures.py
 ./.venv/Scripts/python.exe -m nordrag.cli scan artifacts/fixtures/pptx
 ```

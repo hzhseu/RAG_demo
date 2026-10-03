@@ -41,13 +41,14 @@ def checked_answer(answer, evidence):
     return answer, True
 
 
-def summarize_document(model, chunks, cancel, progress=lambda event: None):
+def summarize_document(model, chunks, cancel, progress=lambda event: None, budget=6500):
     remaining = list(chunks)
     sections, citations = [], []
     while remaining:
         if cancel.is_set():
             raise RuntimeError("任务已取消")
-        messages, batch = prepare_messages("请用最多6个简短条目列出资料明确陈述的事实，保留日期、数字、单位和引用。不要评价资料可信度、完整性或风险，不要新增‘未提供’结论。历史政策与当前政策要区分时间。Summarize only explicit facts, with citations; no speculative limitations.", remaining, [], model.count)
+        progress({'stage': 'summarizing', 'completed': len(chunks)-len(remaining), 'total': len(chunks)})
+        messages, batch = prepare_messages("请用最多6个简短条目列出资料明确陈述的事实，保留日期、数字、单位和引用。不要评价资料可信度、完整性或风险，不要新增‘未提供’结论。历史政策与当前政策要区分时间。Summarize only explicit facts, with citations; no speculative limitations.", remaining, [], model.count, budget=budget)
         if not batch:
             raise ValueError("单个证据片段超过上下文预算，请减小分块")
         answer = "".join(model.stream(messages, cancel, max_tokens=640))

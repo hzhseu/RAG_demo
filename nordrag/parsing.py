@@ -4,6 +4,7 @@ from io import BytesIO
 from pptx import Presentation
 from pptx.enum.shapes import MSO_SHAPE_TYPE
 from .util import digest
+from .diagnostics import describe_error
 
 PARSER_VERSION = "2"
 CHUNK_MAX_CHARS = 1400
@@ -33,7 +34,7 @@ def scan(directory: Path, excluded=()):
             seen[sha] = rel
             result["documents"].append({"id": sha, "name": path.name, "relative_path": rel, "path": str(path), "sha256": sha, "pages": pages})
         except Exception as e:
-            result["failed"].append({"path": rel, "error": str(e)})
+            result["failed"].append({"path": rel, "stage": "scan", "error_type": type(e).__name__, "error": describe_error(e)})
     return result
 
 

@@ -20,7 +20,7 @@ def setup_client(deck, tmp_path):
     root, manifest = open_package(out, tmp_path / "work", engines.embedding_id)
     app = create_app(root, manifest, engines, tmp_path / "data", token="test-secret")
     app.state.engines = engines
-    return TestClient(app), {"X-Nord-Token": "test-secret"}
+    return TestClient(app), {"X-Nord-Token": "test-secret", "X-Knowledge-Sequence": "1"}
 
 
 def test_api_requires_token_and_exposes_version(deck, tmp_path):
@@ -61,7 +61,7 @@ def test_export_retains_lock_until_response_completion(deck, tmp_path):
     import pytest
     from fastapi import HTTPException
     client, headers = setup_client(deck, tmp_path)
-    route = lambda path: next(r.endpoint for r in client.app.routes if r.path == path)
+    route = lambda path: next(r.endpoint for r in client.app.state.knowledge.active.app.routes if r.path == path)
     response = route('/api/export')()
     try:
         with pytest.raises(HTTPException) as error:
@@ -100,7 +100,7 @@ def test_cancellation_during_embedding_does_not_load_chat(deck, tmp_path):
     with concurrent.futures.ThreadPoolExecutor() as pool:
         response = pool.submit(client.post,'/api/chat',headers=headers,json={'session_id':sid,'question':'test'})
         assert entered.wait(2)
-        jid = next(iter(client.app.state.jobs))
+        jid = next(iter(client.app.state.knowledge.active.app.state.jobs))
         assert client.post(f'/api/jobs/{jid}/cancel',headers=headers).status_code == 200
         result = response.result(timeout=3)
     assert stopped.is_set()

@@ -49,7 +49,7 @@ class OwnedFileResponse(FileResponse):
             self.release()
 
 
-def create_app(root: Path, manifest, engines, home: Path, token=None, static_dir=None):
+def create_knowledge_app(root: Path, manifest, engines, home: Path, token=None, static_dir=None, operation_lock=None):
     app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
     token = token or secrets.token_urlsafe(32)
     app.state.token = token
@@ -64,10 +64,12 @@ def create_app(root: Path, manifest, engines, home: Path, token=None, static_dir
         for d in docs:
             if d["id"] in saved:
                 d.update({k: saved[d["id"]][k] for k in ("category", "tags")})
-    busy = OperationLock(home)
+    busy = operation_lock or OperationLock(home)
     state_lock = threading.RLock()
     jobs = {}
     app.state.jobs = jobs
+    app.state.retain_worker = lambda: None
+    app.state.release_worker = lambda: None
 
     @app.middleware("http")
     async def local_only(request: Request, call_next):
@@ -282,8 +284,17 @@ def create_app(root: Path, manifest, engines, home: Path, token=None, static_dir
                     jobs.pop(jid, None)
                 busy.release()
                 messages_queue.put(None)
+                app.state.release_worker()
 
-        threading.Thread(target=worker, daemon=True).start()
+        app.state.retain_worker()
+        try:
+            threading.Thread(target=worker, daemon=True).start()
+        except BaseException:
+            with state_lock:
+                jobs.pop(jid, None)
+            busy.release()
+            app.state.release_worker()
+            raise
 
         async def events():
             try:
@@ -314,4 +325,88 @@ def create_app(root: Path, manifest, engines, home: Path, token=None, static_dir
 
     if static_dir and Path(static_dir).exists():
         app.mount("/", StaticFiles(directory=static_dir, html=True), name="frontend")
+    return app
+
+
+def create_app(root: Path | None, manifest, engines, home: Path, token=None, static_dir=None, *, picker=None):
+    """Stable authenticated gateway; knowledge-scoped handlers keep immutable contexts."""
+    from contextlib import asynccontextmanager
+    from fastapi.responses import Response
+    from .knowledge import KnowledgeManager
+
+    token = token or secrets.token_urlsafe(32)
+    manager = KnowledgeManager(engines, home,
+        lambda r, m, lock: create_knowledge_app(r, m, engines, home, token, operation_lock=lock), picker)
+    if root is not None:
+        manager.adopt(root, manifest)
+
+    @asynccontextmanager
+    async def lifespan(app):
+        try:
+            yield
+        finally:
+            manager.close()
+
+    app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None, lifespan=lifespan)
+    app.state.token = token
+    app.state.knowledge = manager
+
+    @app.middleware('http')
+    async def authenticate(request: Request, call_next):
+        origin = request.headers.get('origin')
+        if request.url.hostname not in ('127.0.0.1', 'localhost', 'testserver') or (origin and urlparse(origin).netloc != request.headers.get('host')):
+            return JSONResponse({'detail': '仅允许本机同源访问'}, status_code=403)
+        if request.url.path.startswith('/api/') and not secrets.compare_digest(request.headers.get('X-Nord-Token', ''), token):
+            return JSONResponse({'detail': '会话令牌无效，请从启动程序打开'}, status_code=403)
+        response = await call_next(request)
+        response.headers['Cache-Control'] = 'no-store'
+        response.headers['X-Content-Type-Options'] = 'nosniff'
+        response.headers['Referrer-Policy'] = 'no-referrer'
+        return response
+
+    @app.exception_handler(HTTPException)
+    async def http_error(request, exc):
+        detail = exc.detail
+        if isinstance(detail, dict):
+            return JSONResponse({'detail': detail['message'], 'code': detail['code']}, status_code=exc.status_code)
+        return JSONResponse({'detail': detail}, status_code=exc.status_code)
+
+    @app.get('/api/status')
+    def status():
+        return {'app_version': __version__, 'model': 'Qwen3-4B-Instruct-2507 · CPU', **manager.status()}
+
+    @app.get('/api/knowledge/recent')
+    def recent():
+        return manager.list_recent()
+
+    @app.post('/api/knowledge/choose')
+    def choose(request: Request):
+        return manager.switch(request.headers.get('X-Knowledge-Sequence'), choose=True)
+
+    class SwitchRequest(BaseModel):
+        id: str = Field(min_length=1, max_length=64)
+
+    @app.post('/api/knowledge/switch')
+    def switch(request: Request, body: SwitchRequest):
+        return manager.switch(request.headers.get('X-Knowledge-Sequence'), recent_id=body.id)
+
+    class ContextResponse(Response):
+        def __init__(self, context, writing):
+            super().__init__()
+            self.context, self.writing = context, writing
+
+        async def __call__(self, scope, receive, send):
+            try:
+                await self.context.app(scope, receive, send)
+            finally:
+                manager.release(self.context, self.writing)
+
+    @app.api_route('/api/{path:path}', methods=['GET', 'POST', 'PATCH', 'DELETE'])
+    def knowledge_request(request: Request, path: str):
+        writing = request.method != 'GET'
+        context = manager.acquire(request.headers.get('X-Knowledge-Sequence'), writing)
+        return ContextResponse(context, writing)
+
+    if static_dir and Path(static_dir).exists():
+        app.mount('/', StaticFiles(directory=static_dir, html=True), name='frontend')
     return app
