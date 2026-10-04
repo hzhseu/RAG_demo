@@ -1,9 +1,11 @@
 from test_api import setup_client
 from nordrag.model_manager import ModelManager
 from test_model_manager import Engine
+import pytest
 
 
-def test_session_model_binding_and_stale_requests(deck,tmp_path):
+@pytest.mark.parametrize('mode', ['knowledge', 'advanced'])
+def test_session_model_binding_and_stale_requests(deck,tmp_path,mode):
     client,headers=setup_client(deck,tmp_path)
     e=client.app.state.engines
     e.cfg={'chat_model':'old','chat_model_sha256':'a'*64}
@@ -16,9 +18,10 @@ def test_session_model_binding_and_stale_requests(deck,tmp_path):
     headers|={'X-Model-Sequence':'0'}
     old=client.post('/api/sessions',json={},headers=headers).json()
     assert old['model']['id']=='default'
-    switched=client.post('/api/models/switch',json={'id':'new'},headers=headers)
+    switched=client.post('/api/models/switch',json={'id':'new','mode':mode},headers=headers)
     assert switched.status_code==200,switched.text
     assert switched.json()['session']['model']['id']=='new'
+    assert switched.json()['session']['mode']==mode
     assert client.post('/api/chat',headers=headers,json={'session_id':old['id'],'question':'hi'}).status_code==409
     headers['X-Model-Sequence']='1'
     resumed=client.post('/api/sessions/'+old['id']+'/activate',headers=headers)

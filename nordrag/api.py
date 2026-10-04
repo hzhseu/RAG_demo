@@ -8,6 +8,7 @@ import threading
 import time
 import uuid
 from pathlib import Path
+from typing import Literal
 from urllib.parse import urlparse
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
@@ -17,10 +18,15 @@ from . import __version__
 from .util import read_json, write_json
 from .index import retrieve, all_chunks
 from .generation import prepare_messages, checked_answer, summarize_topic
+from .catalog import is_catalog_count_question, catalog_count_answer
 from .package import export_package
 from .operations import OperationLock
 from .chat_models import identity
 from .logging_utils import logger
+
+
+class SessionRequest(BaseModel):
+    mode: Literal['knowledge', 'advanced'] = 'knowledge'
 
 
 class ChatRequest(BaseModel):
@@ -103,6 +109,7 @@ def create_knowledge_app(root: Path, manifest, engines, home: Path, token=None, 
             raise HTTPException(409, "该会话属于其他知识库，请打开对应知识库")
         legacy={'id':'default','name':'Qwen3-4B-Instruct-2507','sha256':'3605803b982cb64aead44f6c1b2ae36e3acdb41d8e46c8a94c6533bc4c67e597','generation':{'temperature':.1},'legacy_inferred':True}
         value.setdefault('model',legacy)
+        value.setdefault('mode', 'knowledge')
         for message in value['messages']:
             if message.get('role')=='assistant':message.setdefault('model',value['model'])
         return value
@@ -166,9 +173,9 @@ def create_knowledge_app(root: Path, manifest, engines, home: Path, token=None, 
             busy.release()
             raise
 
-    def new_session():
+    def new_session(mode='knowledge'):
         sid = uuid.uuid4().hex
-        data = {"id": sid, "knowledge_version": manifest["version"], "title": "新对话", "created_at": time.time(), "messages": [], "model": current_identity()}
+        data = {"id": sid, "knowledge_version": manifest["version"], "title": "新对话", "created_at": time.time(), "messages": [], "model": current_identity(), "mode": mode}
         with state_lock:
             write_json(session_path(sid), data)
         return data
@@ -176,18 +183,18 @@ def create_knowledge_app(root: Path, manifest, engines, home: Path, token=None, 
     app.state.new_session = new_session
 
     @app.post('/api/sessions')
-    def create_session(request: Request):
+    def create_session(request: Request, body: SessionRequest | None = None):
         if not busy.acquire(blocking=False):raise HTTPException(409,'请等待当前任务完成')
         try:
             check_model(request)
-            return new_session()
+            return new_session(body.mode if body else 'knowledge')
         finally:busy.release()
 
     @app.get("/api/sessions")
     def sessions():
         with state_lock:
             result = [read_json(p) for p in session_dir.glob("*.json")]
-        return [{k: v for k, v in s.items() if k != "messages"} for s in sorted(result, key=lambda s: s["created_at"], reverse=True) if s["knowledge_version"] == manifest["version"]]
+        return [{**{k: v for k, v in s.items() if k != "messages"}, 'mode': s.get('mode', 'knowledge')} for s in sorted(result, key=lambda s: s["created_at"], reverse=True) if s["knowledge_version"] == manifest["version"]]
 
     @app.get("/api/sessions/{sid}")
     def session(sid: str):
@@ -246,8 +253,12 @@ def create_knowledge_app(root: Path, manifest, engines, home: Path, token=None, 
         return {"cancelled": True}
 
     def start_generation(sid, question, selected=None, request=None):
+        catalog_query = not selected and is_catalog_count_question(question)
         with state_lock:
             conversation = get_session(sid)
+        mode = conversation['mode']
+        if selected and mode != 'knowledge':
+            raise HTTPException(409, '专题总结需要知识问答会话，请新建知识问答后重试')
         if not busy.acquire(blocking=False):
             raise HTTPException(409, "已有生成任务，请等待或停止")
         try:
@@ -261,7 +272,7 @@ def create_knowledge_app(root: Path, manifest, engines, home: Path, token=None, 
             busy.release()
             raise
         model_identity = current_identity()
-        logger.info('generation_started kind=%s', 'topic' if selected else 'chat')
+        logger.info('generation_started kind=%s', 'topic' if selected else 'catalog' if catalog_query else 'chat')
         event = threading.Event()
         jid = uuid.uuid4().hex
         messages_queue = queue.Queue()
@@ -274,6 +285,7 @@ def create_knowledge_app(root: Path, manifest, engines, home: Path, token=None, 
         def worker():
             started = time.perf_counter()
             first_token = None
+            answer_source = None
             finished = threading.Event()
             def watch():
                 while not finished.wait(.1):
@@ -290,8 +302,14 @@ def create_knowledge_app(root: Path, manifest, engines, home: Path, token=None, 
             try:
                 check()
                 send("job", id=jid)
-                send("status", message="正在整理证据…" if selected else "正在检索知识库…")
-                if selected:
+                send("status", message="正在统计知识库目录…" if catalog_query else "正在整理证据…" if selected else "正在检索知识库…")
+                if catalog_query:
+                    answer, answer_source = catalog_count_answer(docs, manifest['version'], question)
+                    citations, valid = [], True
+                    first_token = time.perf_counter() - started
+                    send("evidence", citations=citations)
+                    send("delta", text=answer)
+                elif selected:
                     evidence = attach_names([c for c in all_chunks(root) if c["doc_id"] in selected])
                     # Batches cover every selected document, preserving page-level sources.
                     summary = summarize_topic(engines, evidence, event, lambda e: send("progress", **e))
@@ -307,11 +325,11 @@ def create_knowledge_app(root: Path, manifest, engines, home: Path, token=None, 
                     vector = engines.embed([search_query], query=True)[0]
                     check()
                     evidence = attach_names(retrieve(root, search_query, vector))
-                    prompt, citations = prepare_messages(question, evidence, history, count, budget=min(6500,int(getattr(engines,'cfg',{}).get('context',8192))-1024))
+                    prompt, citations = prepare_messages(question, evidence, history, count, budget=min(6500,int(getattr(engines,'cfg',{}).get('context',8192))-1024), mode=mode)
                     check()
                     send("evidence", citations=citations)
                     answer = ""
-                    if citations and not event.is_set():
+                    if (citations or mode == 'advanced') and not event.is_set():
                         for part in engines.stream(prompt, event):
                             if event.is_set():
                                 break
@@ -319,7 +337,7 @@ def create_knowledge_app(root: Path, manifest, engines, home: Path, token=None, 
                                 first_token = time.perf_counter() - started
                             answer += part
                             send("delta", text=part)
-                        answer, valid = checked_answer(answer, citations)
+                        answer, valid = checked_answer(answer, citations, mode=mode)
                     else:
                         answer, valid = "没有可用证据，无法回答。 / No evidence available.", False
                 if event.is_set():
@@ -327,11 +345,12 @@ def create_knowledge_app(root: Path, manifest, engines, home: Path, token=None, 
                     send("cancelled")
                     return
                 conversation["title"] = conversation["title"] if conversation["messages"] else question[:40]
-                conversation["messages"].extend([{"role": "user", "content": question}, {"role": "assistant", "content": answer, "citations": citations, "supported": valid, "knowledge_version": manifest["version"], "model": model_identity}])
+                supported = valid and (mode == 'knowledge' or catalog_query)
+                conversation["messages"].extend([{"role": "user", "content": question}, {"role": "assistant", "content": answer, "citations": citations, "supported": supported, "citation_valid": valid, "mode": mode, "knowledge_version": manifest["version"], "model": model_identity, "answer_source": answer_source}])
                 with state_lock:
                     write_json(session_path(sid), conversation)
-                send("done", text=answer, model=model_identity, supported=valid, citations=citations, elapsed_seconds=round(time.perf_counter()-started, 2), first_token_seconds=first_token)
-                logger.info('generation_completed supported=%s seconds=%.2f', valid, time.perf_counter()-started)
+                send("done", text=answer, model=model_identity, supported=supported, citation_valid=valid, mode=mode, citations=citations, answer_source=answer_source, elapsed_seconds=round(time.perf_counter()-started, 2), first_token_seconds=first_token)
+                logger.info('generation_completed mode=%s supported=%s seconds=%.2f', mode, supported, time.perf_counter()-started)
             except Exception as e:
                 logger.warning('generation_interrupted cancelled=%s exception_type=%s', event.is_set(), type(e).__name__)
                 send("cancelled" if event.is_set() else "error", message=str(e))
@@ -453,6 +472,9 @@ def create_app(root: Path | None, manifest, engines, home: Path, token=None, sta
     class SwitchRequest(BaseModel):
         id: str = Field(min_length=1, max_length=64)
 
+    class ModelSwitchRequest(SwitchRequest):
+        mode: Literal['knowledge', 'advanced'] = 'knowledge'
+
     @app.post('/api/knowledge/switch')
     def switch(request: Request, body: SwitchRequest):
         return manager.switch(request.headers.get('X-Knowledge-Sequence'), recent_id=body.id)
@@ -462,14 +484,14 @@ def create_app(root: Path | None, manifest, engines, home: Path, token=None, sta
         return {'models':app.state.models.options(), **app.state.models.status()} if app.state.models else {'models':[]}
 
     @app.post('/api/models/switch')
-    def switch_model(request: Request, body: SwitchRequest):
+    def switch_model(request: Request, body: ModelSwitchRequest):
         if not app.state.models:raise HTTPException(409,'当前引擎不支持模型切换')
         if not manager.busy.acquire(blocking=False):raise HTTPException(409,'请等待当前任务完成')
         candidate=None
         def create_candidate():
             nonlocal candidate
             if manager.active:
-                candidate=manager.active.app.state.new_session()
+                candidate=manager.active.app.state.new_session(body.mode)
                 return {'session':candidate}
             return {}
         try:

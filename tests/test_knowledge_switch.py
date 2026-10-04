@@ -16,6 +16,36 @@ def headers(client):
     return TOKEN | {'X-Knowledge-Sequence': str(status['sequence'])}
 
 
+def test_catalog_count_updates_after_switching_libraries(deck, tmp_path):
+    from pptx import Presentation
+    engine = ChatEngines()
+    first, second = tmp_path / 'one.ragkb', tmp_path / 'two.ragkb'
+    build(deck.parent, '一个项目', first, tmp_path / 'cache', engine, threading.Event())
+    extra = Presentation(deck)
+    extra.slides[0].shapes.add_textbox(0, 0, 1000000, 1000000).text = 'Second project'
+    extra.save(deck.parent / 'second.pptx')
+    build(deck.parent, '两个项目', second, tmp_path / 'cache', engine, threading.Event())
+    def unexpected(*args, **kwargs):
+        raise AssertionError('statistics must use the active catalog, not a model')
+    engine.embed = engine.count = engine.stream = unexpected
+    choices = iter([str(first), str(second)])
+    app = create_app(None, None, engine, tmp_path / 'home', token='selection-test', picker=lambda: next(choices))
+    versions = []
+    with TestClient(app) as client:
+        for expected in (1, 2):
+            client.post('/api/knowledge/choose', headers=headers(client)).raise_for_status()
+            h = headers(client)
+            sid = client.post('/api/sessions', json={}, headers=h).json()['id']
+            client.post('/api/chat', headers=h, json={'session_id': sid, 'question': '文档库中有多少文档？'})
+            answer = client.get('/api/sessions/' + sid, headers=h).json()['messages'][-1]
+            assert answer['answer_source']['document_count'] == expected
+            assert answer['answer_source']['project_count'] == expected
+            version = client.get('/api/status', headers=TOKEN).json()['knowledge']['version']
+            assert answer['answer_source']['knowledge_version'] == version
+            versions.append(version)
+        assert versions[0] != versions[1]
+
+
 def test_first_selection_cancel_failure_and_stale_tab(deck, tmp_path):
     engine = ChatEngines()
     package = tmp_path / 'first.ragkb'

@@ -1,5 +1,14 @@
 import threading
+import pytest
 from nordrag.generation import prepare_messages, checked_answer, summarize_document, summarize_topic
+
+
+@pytest.mark.parametrize('answer', [
+    '当前知识库共有6个项目 [项目统计]',
+    '当前知识库共有6个项目 [项目统计] [1]',
+])
+def test_model_cannot_self_certify_catalog_statistics(answer):
+    assert not checked_answer(answer, [{'id': 'a'}])[1]
 
 
 def test_evidence_budget_does_not_break_table_rows():
