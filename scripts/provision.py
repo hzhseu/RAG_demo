@@ -52,6 +52,7 @@ def main():
         llama = pool.submit(download, url, RUNTIME / "downloads" / "llama-b11326.zip")
         for name in ("PP-OCRv5_mobile_det", "PP-OCRv5_mobile_rec"):
             jobs.append(pool.submit(ocr_model, name))
+        jobs.append(pool.submit(model, "ggml-org/Qwen3-Reranker-0.6B-Q8_0-GGUF", "qwen3-reranker-0.6b-q8_0.gguf", "a02f48bb4f057028298c21fa033da2b30d7742d5", "22c9979ce4fbcdc5acdc310c6641c32797eff1aa980b8f7a2db8a8ea23429a48"))
         records = [j.result() for j in jobs]
         archive = llama.result()
         with zipfile.ZipFile(archive) as z:

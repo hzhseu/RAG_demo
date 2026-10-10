@@ -37,8 +37,9 @@ def completion_payload(cfg, messages, max_tokens):
 
 
 class LlamaServer:
-    def __init__(self, cfg, model_key, embedding=False):
+    def __init__(self, cfg, model_key, embedding=False, reranking=False):
         self.cfg, self.model_key, self.embedding = cfg, model_key, embedding
+        self.reranking = reranking
         self.process = None
         self.client = None
 
@@ -50,7 +51,9 @@ class LlamaServer:
         port = free_port()
         key = secrets.token_urlsafe(32)
         args = [str(asset(self.cfg, "llama_server")), "-m", str(asset(self.cfg, self.model_key)), "--host", "127.0.0.1", "--port", str(port), "--api-key", key, "-t", str(self.cfg.get("threads", 4)), "-c", str(8192 if self.embedding else self.cfg.get("context", 8192)), "-ngl", "0", "--parallel", "1", "--no-webui"]
-        if self.embedding:
+        if self.reranking:
+            args += ['--embedding', '--pooling', 'rank', '--reranking', '-b', '8192', '-ub', '8192']
+        elif self.embedding:
             args += ["--embedding", "--pooling", "last", "-b", "8192", "-ub", "8192"]
         elif self.cfg.get('chat_template_kwargs'):
             args += ['--jinja', '--chat-template-kwargs', json.dumps(self.cfg['chat_template_kwargs'])]
@@ -157,6 +160,7 @@ class Engines:
         self.signature = hashlib.sha256(json.dumps(pipeline, sort_keys=True).encode()).hexdigest()
         self.chat = LlamaServer(cfg, "chat_model")
         self.embedding = LlamaServer(self.base_cfg, "embedding_model", True)
+        self.reranker = None
         self._refresh_identity()
         lock = Path(self.base_cfg.get('root', app_root())) / 'runtime' / 'runtime-lock.json'
         components = json.loads(lock.read_text(encoding='utf-8')) if lock.exists() else {}
@@ -201,8 +205,12 @@ class Engines:
     def close(self):
         self.chat.stop()
         self.embedding.stop()
+        if self.reranker:
+            self.reranker.stop()
 
     def cancel(self):
+        if self.reranker:
+            self.reranker.cancel()
         for server in (self.chat, self.embedding):
             process = server.process
             if process and process.poll() is None:
@@ -210,6 +218,12 @@ class Engines:
                     process.terminate()
                 except OSError:
                     pass
+
+    def rerank(self, query, candidates, cancel):
+        if self.reranker is None:
+            from .reranking import Reranker
+            self.reranker = Reranker(self.base_cfg)
+        return self.reranker.score(query, candidates, cancel)
 
     def embed(self, texts, query=False):
         self.embedding.start()

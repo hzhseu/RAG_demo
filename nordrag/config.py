@@ -50,6 +50,9 @@ def preflight(cfg, build=False, check_chat=True):
                 errors.append("运行组件清单摘要不匹配")
             else:
                 for name, expected in files.items():
+                    # Reranking is optional; its weights are checked before use.
+                    if cfg.get('reranker_model') and (runtime / name).resolve() == asset(cfg, 'reranker_model').resolve():
+                        continue
                     # Answer weights are optional at startup and validated by the
                     # model registry before use; embedding remains mandatory.
                     if not check_chat and name.startswith('models/') and Path(name).name != asset(cfg,'embedding_model').name:

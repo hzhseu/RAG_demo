@@ -55,7 +55,7 @@ def test_chat_counts_full_catalog_without_model_or_retrieval_despite_wrong_histo
     assert len(client.get('/api/documents', headers=headers).json()) == 10
     def unexpected(*args, **kwargs):
         raise AssertionError('catalog totals must not call inference or retrieval')
-    monkeypatch.setattr('nordrag.api.retrieve', unexpected)
+    monkeypatch.setattr('nordrag.reranking.retrieve', unexpected)
     for method in ('embed', 'count', 'stream'):
         monkeypatch.setattr(client.app.state.engines, method, unexpected)
     sid = client.post('/api/sessions', json={}, headers=headers).json()['id']
@@ -113,7 +113,7 @@ def test_catalog_count_uses_loaded_directory_including_empty_library(tmp_path, t
 
 def test_content_question_without_evidence_does_not_call_model(deck, tmp_path, monkeypatch):
     client, headers = setup_client(deck, tmp_path)
-    monkeypatch.setattr('nordrag.api.retrieve', lambda *args: [])
+    monkeypatch.setattr('nordrag.reranking.retrieve', lambda *args: [])
     def unexpected(*args, **kwargs):
         raise AssertionError('no evidence for content generation')
     client.app.state.engines.stream = unexpected

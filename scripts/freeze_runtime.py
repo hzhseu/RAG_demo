@@ -18,7 +18,7 @@ def main():
     for key in ('ocr_detection','ocr_recognition'):
         original=ROOT/cfg[key]
         if not original.exists() and original.with_name(original.name+'_infer').exists():cfg[key]=original.with_name(original.name+'_infer').relative_to(ROOT).as_posix()
-    for key in ('chat_model','embedding_model'):
+    for key in ('chat_model','embedding_model','reranker_model'):
         cfg[key+'_sha256']=digest(ROOT/cfg[key])
     for entry in load_models(cfg | {'root':str(ROOT)}).values():
         reason=unavailable_reason(entry['cfg'])

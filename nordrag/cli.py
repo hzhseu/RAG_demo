@@ -69,6 +69,11 @@ def main(argv=None):
         cfg = load_config(args.config)
         if args.command == "doctor":
             errors = preflight(cfg, build=True)
+            from .reranking import validate_reranker, RerankError
+            try:
+                validate_reranker(cfg)
+            except (RerankError, OSError) as exc:
+                errors.append(f'可选重排组件不可用（原混合检索仍可使用）：{type(exc).__name__}: {exc}')
             errors += [reason for entry in load_models(cfg).values() if (reason:=unavailable_reason(entry['cfg']))]
             print("\n".join(errors) if errors else "运行组件与模型校验通过")
             return 1 if errors else 0

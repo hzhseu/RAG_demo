@@ -217,3 +217,5 @@ input[type=checkbox]{accent-color:var(--accent)}
 .model-select {display:flex;align-items:center;gap:8px}.model-select select {max-width:230px;padding:7px;border:1px solid #d8dce0;border-radius:7px;background:white;font:inherit}
 .session-mode { display: inline-block; margin-right: 6px; padding: 1px 5px; border: 1px solid currentColor; border-radius: 4px; font-size: 10px; opacity: .65; }
 .answer-origin { margin: 8px 0; color: #65736e; font-size: 12px; line-height: 1.6; }
+
+.rerank-switch{display:flex;align-items:center;gap:6px;font-size:13px;white-space:nowrap}.rerank-switch input{accent-color:#334d70}.retrieval-note{font-size:12px;color:#66788a;margin-top:10px}.retrieval-note.fallback{color:#875723}

@@ -12,6 +12,7 @@ ROOT=Path(__file__).resolve().parent.parent
 sys.path.insert(0,str(ROOT))
 from nordrag.chat_models import load_models, unavailable_reason
 from nordrag.config import load_config, preflight
+from nordrag.reranking import validate_reranker
 from nordrag.util import digest, write_json
 
 
@@ -89,6 +90,7 @@ def main():
     if not (ROOT/'frontend/dist/index.html').exists():
         raise SystemExit('Build frontend first')
     if not args.app_only:
+        validate_reranker(load_config())
         errors=preflight(load_config(),build=True)
         errors += [reason for entry in load_models(load_config()).values() if (reason:=unavailable_reason(entry['cfg']))]
         if errors:raise SystemExit('\n'.join(errors))

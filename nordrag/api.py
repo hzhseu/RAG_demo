@@ -16,7 +16,8 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from . import __version__
 from .util import read_json, write_json
-from .index import retrieve, all_chunks
+from .index import all_chunks
+from .reranking import retrieve_evidence
 from .generation import prepare_messages, checked_answer, summarize_topic
 from .catalog import is_catalog_count_question, catalog_count_answer
 from .package import export_package
@@ -27,6 +28,7 @@ from .logging_utils import logger
 
 class SessionRequest(BaseModel):
     mode: Literal['knowledge', 'advanced'] = 'knowledge'
+    retrieval_mode: Literal['hybrid', 'rerank'] = 'rerank'
 
 
 class ChatRequest(BaseModel):
@@ -110,6 +112,7 @@ def create_knowledge_app(root: Path, manifest, engines, home: Path, token=None, 
         legacy={'id':'default','name':'Qwen3-4B-Instruct-2507','sha256':'3605803b982cb64aead44f6c1b2ae36e3acdb41d8e46c8a94c6533bc4c67e597','generation':{'temperature':.1},'legacy_inferred':True}
         value.setdefault('model',legacy)
         value.setdefault('mode', 'knowledge')
+        value.setdefault('retrieval_mode', 'hybrid')
         for message in value['messages']:
             if message.get('role')=='assistant':message.setdefault('model',value['model'])
         return value
@@ -173,9 +176,9 @@ def create_knowledge_app(root: Path, manifest, engines, home: Path, token=None, 
             busy.release()
             raise
 
-    def new_session(mode='knowledge'):
+    def new_session(mode='knowledge', retrieval_mode='rerank'):
         sid = uuid.uuid4().hex
-        data = {"id": sid, "knowledge_version": manifest["version"], "title": "新对话", "created_at": time.time(), "messages": [], "model": current_identity(), "mode": mode}
+        data = {"id": sid, "knowledge_version": manifest["version"], "title": "新对话", "created_at": time.time(), "messages": [], "model": current_identity(), "mode": mode, "retrieval_mode": retrieval_mode}
         with state_lock:
             write_json(session_path(sid), data)
         return data
@@ -187,14 +190,14 @@ def create_knowledge_app(root: Path, manifest, engines, home: Path, token=None, 
         if not busy.acquire(blocking=False):raise HTTPException(409,'请等待当前任务完成')
         try:
             check_model(request)
-            return new_session(body.mode if body else 'knowledge')
+            return new_session(body.mode if body else 'knowledge', body.retrieval_mode if body else 'rerank')
         finally:busy.release()
 
     @app.get("/api/sessions")
     def sessions():
         with state_lock:
             result = [read_json(p) for p in session_dir.glob("*.json")]
-        return [{**{k: v for k, v in s.items() if k != "messages"}, 'mode': s.get('mode', 'knowledge')} for s in sorted(result, key=lambda s: s["created_at"], reverse=True) if s["knowledge_version"] == manifest["version"]]
+        return [{**{k: v for k, v in s.items() if k != "messages"}, 'mode': s.get('mode', 'knowledge'), 'retrieval_mode': s.get('retrieval_mode', 'hybrid')} for s in sorted(result, key=lambda s: s["created_at"], reverse=True) if s["knowledge_version"] == manifest["version"]]
 
     @app.get("/api/sessions/{sid}")
     def session(sid: str):
@@ -286,6 +289,7 @@ def create_knowledge_app(root: Path, manifest, engines, home: Path, token=None, 
             started = time.perf_counter()
             first_token = None
             answer_source = None
+            retrieval = dict(retrieval_mode='not_applicable', rerank_seconds=0.0, rerank_fallback=False, rerank_reason=None)
             finished = threading.Event()
             def watch():
                 while not finished.wait(.1):
@@ -324,7 +328,12 @@ def create_knowledge_app(root: Path, manifest, engines, home: Path, token=None, 
                     search_query = (previous[-400:] + "\n" + question) if previous and len(question) < 80 else question
                     vector = engines.embed([search_query], query=True)[0]
                     check()
-                    evidence = attach_names(retrieve(root, search_query, vector))
+                    evidence, retrieval = retrieve_evidence(root, search_query, vector, engines, event,
+                        conversation['retrieval_mode'], lambda: send('status', message='正在重排证据…'))
+                    evidence = attach_names(evidence)
+                    if retrieval['rerank_fallback']:
+                        send('status', message='重排暂不可用，已使用原混合检索。')
+                        logger.info('rerank_fallback reason=%s', retrieval['rerank_reason'])
                     prompt, citations = prepare_messages(question, evidence, history, count, budget=min(6500,int(getattr(engines,'cfg',{}).get('context',8192))-1024), mode=mode)
                     check()
                     send("evidence", citations=citations)
@@ -346,10 +355,10 @@ def create_knowledge_app(root: Path, manifest, engines, home: Path, token=None, 
                     return
                 conversation["title"] = conversation["title"] if conversation["messages"] else question[:40]
                 supported = valid and (mode == 'knowledge' or catalog_query)
-                conversation["messages"].extend([{"role": "user", "content": question}, {"role": "assistant", "content": answer, "citations": citations, "supported": supported, "citation_valid": valid, "mode": mode, "knowledge_version": manifest["version"], "model": model_identity, "answer_source": answer_source}])
+                conversation["messages"].extend([{"role": "user", "content": question}, {"role": "assistant", "content": answer, "citations": citations, "supported": supported, "citation_valid": valid, "mode": mode, "knowledge_version": manifest["version"], "model": model_identity, "answer_source": answer_source, **retrieval}])
                 with state_lock:
                     write_json(session_path(sid), conversation)
-                send("done", text=answer, model=model_identity, supported=supported, citation_valid=valid, mode=mode, citations=citations, answer_source=answer_source, elapsed_seconds=round(time.perf_counter()-started, 2), first_token_seconds=first_token)
+                send("done", text=answer, model=model_identity, supported=supported, citation_valid=valid, mode=mode, citations=citations, answer_source=answer_source, elapsed_seconds=round(time.perf_counter()-started, 2), first_token_seconds=first_token, **retrieval)
                 logger.info('generation_completed mode=%s supported=%s seconds=%.2f', mode, supported, time.perf_counter()-started)
             except Exception as e:
                 logger.warning('generation_interrupted cancelled=%s exception_type=%s', event.is_set(), type(e).__name__)
@@ -474,6 +483,7 @@ def create_app(root: Path | None, manifest, engines, home: Path, token=None, sta
 
     class ModelSwitchRequest(SwitchRequest):
         mode: Literal['knowledge', 'advanced'] = 'knowledge'
+        retrieval_mode: Literal['hybrid', 'rerank'] = 'rerank'
 
     @app.post('/api/knowledge/switch')
     def switch(request: Request, body: SwitchRequest):
@@ -491,7 +501,7 @@ def create_app(root: Path | None, manifest, engines, home: Path, token=None, sta
         def create_candidate():
             nonlocal candidate
             if manager.active:
-                candidate=manager.active.app.state.new_session(body.mode)
+                candidate=manager.active.app.state.new_session(body.mode, body.retrieval_mode)
                 return {'session':candidate}
             return {}
         try:

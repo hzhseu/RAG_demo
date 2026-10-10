@@ -27,6 +27,9 @@ node_modules/
 *.ragkb
 /artifacts/
 /knowledge_bases/
+/RadioMind-Windows-x64-reranking-*.zip
+/RadioMind-Windows-x64-reranking-*.zip.partial
+/RadioMind-Windows-x64-reranking-*.zip.sha256.txt
 
 # Local environment configuration (keep shareable examples)
 .env

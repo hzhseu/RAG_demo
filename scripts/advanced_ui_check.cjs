@@ -13,6 +13,7 @@ const base = process.env.UI_BASE_URL || 'http://127.0.0.1:8765';
     const advanced = page.getByRole('button', {name: '高级问答', exact: true});
     const knowledge = page.getByRole('button', {name: '知识问答', exact: true});
     await advanced.waitFor({timeout: 5000});
+    await page.waitForFunction(()=>document.querySelector('nav')?.textContent.includes('文档库2'));
     assert.deepEqual(await page.locator('nav button').allTextContents(),
       ['◌ 知识问答', '✧ 高级问答', '▤ 文档库2', '◇ 知识整理']);
     async function send(question) {

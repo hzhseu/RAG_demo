@@ -1,0 +1,950 @@
+{
+  "real_models": true,
+  "real_business_data": false,
+  "engine": "llama.cpp b11326",
+  "reranker": {
+    "reranker_model": "runtime/models/qwen3-reranker-0.6b-q8_0.gguf",
+    "reranker_model_sha256": "22c9979ce4fbcdc5acdc310c6641c32797eff1aa980b8f7a2db8a8ea23429a48",
+    "reranker_candidates": 30,
+    "reranker_top_k": 8,
+    "reranker_threads": 4,
+    "reranker_context": 8192,
+    "reranker_timeout_seconds": 120
+  },
+  "cases": [
+    {
+      "question": "Alpha 标准保修期多长？",
+      "file": "01_产品与指标.pptx",
+      "page": 1,
+      "answer": "24个月",
+      "baseline_rank": 1,
+      "rerank_rank": 1,
+      "baseline_search_seconds": 0.002353900000343856,
+      "retrieval_mode": "rerank",
+      "rerank_seconds": 5.55,
+      "rerank_fallback": false,
+      "rerank_reason": null,
+      "hits": [
+        {
+          "id": "ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2:1:0",
+          "file": "01_产品与指标.pptx",
+          "page": 1,
+          "rrf_score": 0.03278688524590164,
+          "rerank_score": 0.9998352527618408
+        },
+        {
+          "id": "81ec33251a4407b43e25616c9f9aa2db10501edaed207640c8e64e8c8a3117e7:2:1",
+          "file": "02_流程与术语.pptx",
+          "page": 2,
+          "rrf_score": 0.03225806451612903,
+          "rerank_score": 0.9985076785087585
+        },
+        {
+          "id": "ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2:2:2",
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "rrf_score": 0.031746031746031744,
+          "rerank_score": 0.005681643728166819
+        },
+        {
+          "id": "ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2:3:5",
+          "file": "01_产品与指标.pptx",
+          "page": 3,
+          "rrf_score": 0.015625,
+          "rerank_score": 0.0006637918995693326
+        },
+        {
+          "id": "81ec33251a4407b43e25616c9f9aa2db10501edaed207640c8e64e8c8a3117e7:3:2",
+          "file": "02_流程与术语.pptx",
+          "page": 3,
+          "rrf_score": 0.015384615384615385,
+          "rerank_score": 0.0005727293901145458
+        },
+        {
+          "id": "ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2:2:3",
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "rrf_score": 0.014925373134328358,
+          "rerank_score": 0.00036984196049161255
+        },
+        {
+          "id": "ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2:2:4",
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "rrf_score": 0.014705882352941176,
+          "rerank_score": 0.0003166354726999998
+        },
+        {
+          "id": "ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2:2:1",
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "rrf_score": 0.014492753623188406,
+          "rerank_score": 8.91627641976811e-05
+        }
+      ]
+    },
+    {
+      "question": "When does warranty begin?",
+      "file": "01_产品与指标.pptx",
+      "page": 1,
+      "answer": "acceptance",
+      "baseline_rank": 1,
+      "rerank_rank": 1,
+      "baseline_search_seconds": 0.0009860999998636544,
+      "retrieval_mode": "rerank",
+      "rerank_seconds": 3.72,
+      "rerank_fallback": false,
+      "rerank_reason": null,
+      "hits": [
+        {
+          "id": "ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2:1:0",
+          "file": "01_产品与指标.pptx",
+          "page": 1,
+          "rrf_score": 0.03278688524590164,
+          "rerank_score": 0.9973139762878418
+        },
+        {
+          "id": "81ec33251a4407b43e25616c9f9aa2db10501edaed207640c8e64e8c8a3117e7:2:1",
+          "file": "02_流程与术语.pptx",
+          "page": 2,
+          "rrf_score": 0.03225806451612903,
+          "rerank_score": 0.2726205885410309
+        },
+        {
+          "id": "81ec33251a4407b43e25616c9f9aa2db10501edaed207640c8e64e8c8a3117e7:1:0",
+          "file": "02_流程与术语.pptx",
+          "page": 1,
+          "rrf_score": 0.015384615384615385,
+          "rerank_score": 0.0008873363840393722
+        },
+        {
+          "id": "81ec33251a4407b43e25616c9f9aa2db10501edaed207640c8e64e8c8a3117e7:3:2",
+          "file": "02_流程与术语.pptx",
+          "page": 3,
+          "rrf_score": 0.015151515151515152,
+          "rerank_score": 0.00041648634942248464
+        },
+        {
+          "id": "ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2:2:1",
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "rrf_score": 0.014492753623188406,
+          "rerank_score": 0.0002880638057831675
+        },
+        {
+          "id": "ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2:2:4",
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "rrf_score": 0.014705882352941176,
+          "rerank_score": 0.0002839415683411062
+        },
+        {
+          "id": "ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2:2:3",
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "rrf_score": 0.015625,
+          "rerank_score": 0.00027272370061837137
+        },
+        {
+          "id": "ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2:2:2",
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "rrf_score": 0.014925373134328358,
+          "rerank_score": 0.0002718890318647027
+        }
+      ]
+    },
+    {
+      "question": "Beta 的保修期多长？",
+      "file": "01_产品与指标.pptx",
+      "page": 1,
+      "answer": "12 months",
+      "baseline_rank": 1,
+      "rerank_rank": 1,
+      "baseline_search_seconds": 0.0008744000001570384,
+      "retrieval_mode": "rerank",
+      "rerank_seconds": 3.798,
+      "rerank_fallback": false,
+      "rerank_reason": null,
+      "hits": [
+        {
+          "id": "ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2:1:0",
+          "file": "01_产品与指标.pptx",
+          "page": 1,
+          "rrf_score": 0.03278688524590164,
+          "rerank_score": 0.999681830406189
+        },
+        {
+          "id": "81ec33251a4407b43e25616c9f9aa2db10501edaed207640c8e64e8c8a3117e7:2:1",
+          "file": "02_流程与术语.pptx",
+          "page": 2,
+          "rrf_score": 0.03225806451612903,
+          "rerank_score": 0.3421356678009033
+        },
+        {
+          "id": "ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2:2:3",
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "rrf_score": 0.031746031746031744,
+          "rerank_score": 0.027129987254738808
+        },
+        {
+          "id": "ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2:3:5",
+          "file": "01_产品与指标.pptx",
+          "page": 3,
+          "rrf_score": 0.015625,
+          "rerank_score": 0.0008494220674037933
+        },
+        {
+          "id": "ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2:2:2",
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "rrf_score": 0.015384615384615385,
+          "rerank_score": 0.0003772306372411549
+        },
+        {
+          "id": "ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2:2:4",
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "rrf_score": 0.014925373134328358,
+          "rerank_score": 0.0003063756739720702
+        },
+        {
+          "id": "81ec33251a4407b43e25616c9f9aa2db10501edaed207640c8e64e8c8a3117e7:3:2",
+          "file": "02_流程与术语.pptx",
+          "page": 3,
+          "rrf_score": 0.015151515151515152,
+          "rerank_score": 0.00029983266722410917
+        },
+        {
+          "id": "81ec33251a4407b43e25616c9f9aa2db10501edaed207640c8e64e8c8a3117e7:1:0",
+          "file": "02_流程与术语.pptx",
+          "page": 1,
+          "rrf_score": 0.014492753623188406,
+          "rerank_score": 0.00012962181062903255
+        }
+      ]
+    },
+    {
+      "question": "What is Alpha revenue in EUR?",
+      "file": "01_产品与指标.pptx",
+      "page": 2,
+      "answer": "120.50 EUR",
+      "baseline_rank": 1,
+      "rerank_rank": 1,
+      "baseline_search_seconds": 0.0009092000000237022,
+      "retrieval_mode": "rerank",
+      "rerank_seconds": 3.802,
+      "rerank_fallback": false,
+      "rerank_reason": null,
+      "hits": [
+        {
+          "id": "ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2:2:2",
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "rrf_score": 0.03278688524590164,
+          "rerank_score": 0.9996228814125061
+        },
+        {
+          "id": "ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2:2:3",
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "rrf_score": 0.031009615384615385,
+          "rerank_score": 0.9591339826583862
+        },
+        {
+          "id": "ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2:2:4",
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "rrf_score": 0.031009615384615385,
+          "rerank_score": 0.7160107493400574
+        },
+        {
+          "id": "ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2:2:1",
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "rrf_score": 0.030303030303030304,
+          "rerank_score": 0.04569615051150322
+        },
+        {
+          "id": "81ec33251a4407b43e25616c9f9aa2db10501edaed207640c8e64e8c8a3117e7:1:0",
+          "file": "02_流程与术语.pptx",
+          "page": 1,
+          "rrf_score": 0.029850746268656716,
+          "rerank_score": 0.0032802503556013107
+        },
+        {
+          "id": "81ec33251a4407b43e25616c9f9aa2db10501edaed207640c8e64e8c8a3117e7:2:1",
+          "file": "02_流程与术语.pptx",
+          "page": 2,
+          "rrf_score": 0.03200204813108039,
+          "rerank_score": 0.0030496742110699415
+        },
+        {
+          "id": "ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2:1:0",
+          "file": "01_产品与指标.pptx",
+          "page": 1,
+          "rrf_score": 0.03200204813108039,
+          "rerank_score": 0.0009147897362709045
+        },
+        {
+          "id": "ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2:3:5",
+          "file": "01_产品与指标.pptx",
+          "page": 3,
+          "rrf_score": 0.014705882352941176,
+          "rerank_score": 0.00011734377039829269
+        }
+      ]
+    },
+    {
+      "question": "Beta 收入是多少？",
+      "file": "01_产品与指标.pptx",
+      "page": 2,
+      "answer": "99.00 EUR",
+      "baseline_rank": 1,
+      "rerank_rank": 1,
+      "baseline_search_seconds": 0.0008268999999927473,
+      "retrieval_mode": "rerank",
+      "rerank_seconds": 3.821,
+      "rerank_fallback": false,
+      "rerank_reason": null,
+      "hits": [
+        {
+          "id": "ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2:2:3",
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "rrf_score": 0.03278688524590164,
+          "rerank_score": 0.995711624622345
+        },
+        {
+          "id": "ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2:2:2",
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "rrf_score": 0.031754032258064516,
+          "rerank_score": 0.03538334369659424
+        },
+        {
+          "id": "ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2:2:4",
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "rrf_score": 0.03125763125763126,
+          "rerank_score": 0.011422781273722649
+        },
+        {
+          "id": "ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2:1:0",
+          "file": "01_产品与指标.pptx",
+          "page": 1,
+          "rrf_score": 0.031754032258064516,
+          "rerank_score": 0.00898380670696497
+        },
+        {
+          "id": "ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2:2:1",
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "rrf_score": 0.03125763125763126,
+          "rerank_score": 0.0014350038254633546
+        },
+        {
+          "id": "ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2:3:5",
+          "file": "01_产品与指标.pptx",
+          "page": 3,
+          "rrf_score": 0.014925373134328358,
+          "rerank_score": 0.00043203533277846873
+        },
+        {
+          "id": "81ec33251a4407b43e25616c9f9aa2db10501edaed207640c8e64e8c8a3117e7:2:1",
+          "file": "02_流程与术语.pptx",
+          "page": 2,
+          "rrf_score": 0.015151515151515152,
+          "rerank_score": 0.00040005924529396
+        },
+        {
+          "id": "81ec33251a4407b43e25616c9f9aa2db10501edaed207640c8e64e8c8a3117e7:1:0",
+          "file": "02_流程与术语.pptx",
+          "page": 1,
+          "rrf_score": 0.014492753623188406,
+          "rerank_score": 0.00035463052336126566
+        }
+      ]
+    },
+    {
+      "question": "Alpha 增长率是多少？",
+      "file": "01_产品与指标.pptx",
+      "page": 2,
+      "answer": "12.5%",
+      "baseline_rank": 1,
+      "rerank_rank": 1,
+      "baseline_search_seconds": 0.0008882999995876162,
+      "retrieval_mode": "rerank",
+      "rerank_seconds": 3.857,
+      "rerank_fallback": false,
+      "rerank_reason": null,
+      "hits": [
+        {
+          "id": "ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2:2:2",
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "rrf_score": 0.03278688524590164,
+          "rerank_score": 0.9954045414924622
+        },
+        {
+          "id": "81ec33251a4407b43e25616c9f9aa2db10501edaed207640c8e64e8c8a3117e7:2:1",
+          "file": "02_流程与术语.pptx",
+          "page": 2,
+          "rrf_score": 0.03225806451612903,
+          "rerank_score": 0.11020734161138535
+        },
+        {
+          "id": "ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2:2:3",
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "rrf_score": 0.031009615384615385,
+          "rerank_score": 0.04982864111661911
+        },
+        {
+          "id": "ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2:2:4",
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "rrf_score": 0.030776515151515152,
+          "rerank_score": 0.006235146429389715
+        },
+        {
+          "id": "ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2:1:0",
+          "file": "01_产品与指标.pptx",
+          "page": 1,
+          "rrf_score": 0.031024531024531024,
+          "rerank_score": 0.0061528608202934265
+        },
+        {
+          "id": "ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2:2:1",
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "rrf_score": 0.03125763125763126,
+          "rerank_score": 0.0031762151047587395
+        },
+        {
+          "id": "ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2:3:5",
+          "file": "01_产品与指标.pptx",
+          "page": 3,
+          "rrf_score": 0.014925373134328358,
+          "rerank_score": 0.00032852537697181106
+        },
+        {
+          "id": "81ec33251a4407b43e25616c9f9aa2db10501edaed207640c8e64e8c8a3117e7:3:2",
+          "file": "02_流程与术语.pptx",
+          "page": 3,
+          "rrf_score": 0.014705882352941176,
+          "rerank_score": 0.0001567475264891982
+        }
+      ]
+    },
+    {
+      "question": "响应时间是多久？",
+      "file": "01_产品与指标.pptx",
+      "page": 3,
+      "answer": "4 hours",
+      "baseline_rank": 1,
+      "rerank_rank": 1,
+      "baseline_search_seconds": 0.0008667000001878478,
+      "retrieval_mode": "rerank",
+      "rerank_seconds": 3.805,
+      "rerank_fallback": false,
+      "rerank_reason": null,
+      "hits": [
+        {
+          "id": "ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2:3:5",
+          "file": "01_产品与指标.pptx",
+          "page": 3,
+          "rrf_score": 0.03278688524590164,
+          "rerank_score": 0.9987372159957886
+        },
+        {
+          "id": "ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2:1:0",
+          "file": "01_产品与指标.pptx",
+          "page": 1,
+          "rrf_score": 0.016129032258064516,
+          "rerank_score": 0.0017298844177275896
+        },
+        {
+          "id": "81ec33251a4407b43e25616c9f9aa2db10501edaed207640c8e64e8c8a3117e7:3:2",
+          "file": "02_流程与术语.pptx",
+          "page": 3,
+          "rrf_score": 0.015625,
+          "rerank_score": 0.0008991799550130963
+        },
+        {
+          "id": "81ec33251a4407b43e25616c9f9aa2db10501edaed207640c8e64e8c8a3117e7:2:1",
+          "file": "02_流程与术语.pptx",
+          "page": 2,
+          "rrf_score": 0.015873015873015872,
+          "rerank_score": 0.000647913955617696
+        },
+        {
+          "id": "ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2:2:4",
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "rrf_score": 0.014705882352941176,
+          "rerank_score": 0.00031290625338442624
+        },
+        {
+          "id": "81ec33251a4407b43e25616c9f9aa2db10501edaed207640c8e64e8c8a3117e7:1:0",
+          "file": "02_流程与术语.pptx",
+          "page": 1,
+          "rrf_score": 0.015151515151515152,
+          "rerank_score": 0.0003007826453540474
+        },
+        {
+          "id": "ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2:2:2",
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "rrf_score": 0.014925373134328358,
+          "rerank_score": 0.00029589617042802274
+        },
+        {
+          "id": "ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2:2:3",
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "rrf_score": 0.015384615384615385,
+          "rerank_score": 0.00027787062572315335
+        }
+      ]
+    },
+    {
+      "question": "服务可用性是多少？",
+      "file": "01_产品与指标.pptx",
+      "page": 3,
+      "answer": "99.5%",
+      "baseline_rank": 1,
+      "rerank_rank": 1,
+      "baseline_search_seconds": 0.0009104000000661472,
+      "retrieval_mode": "rerank",
+      "rerank_seconds": 3.951,
+      "rerank_fallback": false,
+      "rerank_reason": null,
+      "hits": [
+        {
+          "id": "ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2:3:5",
+          "file": "01_产品与指标.pptx",
+          "page": 3,
+          "rrf_score": 0.03278688524590164,
+          "rerank_score": 0.9969080686569214
+        },
+        {
+          "id": "81ec33251a4407b43e25616c9f9aa2db10501edaed207640c8e64e8c8a3117e7:3:2",
+          "file": "02_流程与术语.pptx",
+          "page": 3,
+          "rrf_score": 0.03225806451612903,
+          "rerank_score": 0.09389336407184601
+        },
+        {
+          "id": "ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2:1:0",
+          "file": "01_产品与指标.pptx",
+          "page": 1,
+          "rrf_score": 0.015873015873015872,
+          "rerank_score": 0.007886072620749474
+        },
+        {
+          "id": "81ec33251a4407b43e25616c9f9aa2db10501edaed207640c8e64e8c8a3117e7:2:1",
+          "file": "02_流程与术语.pptx",
+          "page": 2,
+          "rrf_score": 0.015625,
+          "rerank_score": 0.0017247397918254137
+        },
+        {
+          "id": "ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2:2:3",
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "rrf_score": 0.015384615384615385,
+          "rerank_score": 0.0015816129744052887
+        },
+        {
+          "id": "ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2:2:4",
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "rrf_score": 0.014705882352941176,
+          "rerank_score": 0.0014868475263938308
+        },
+        {
+          "id": "ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2:2:2",
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "rrf_score": 0.014925373134328358,
+          "rerank_score": 0.001400029519572854
+        },
+        {
+          "id": "81ec33251a4407b43e25616c9f9aa2db10501edaed207640c8e64e8c8a3117e7:1:0",
+          "file": "02_流程与术语.pptx",
+          "page": 1,
+          "rrf_score": 0.014492753623188406,
+          "rerank_score": 0.0012225290993228555
+        }
+      ]
+    },
+    {
+      "question": "Who approves purchases above EUR 5000?",
+      "file": "02_流程与术语.pptx",
+      "page": 1,
+      "answer": "department manager",
+      "baseline_rank": 1,
+      "rerank_rank": 1,
+      "baseline_search_seconds": 0.0010185000001001754,
+      "retrieval_mode": "rerank",
+      "rerank_seconds": 4.021,
+      "rerank_fallback": false,
+      "rerank_reason": null,
+      "hits": [
+        {
+          "id": "81ec33251a4407b43e25616c9f9aa2db10501edaed207640c8e64e8c8a3117e7:1:0",
+          "file": "02_流程与术语.pptx",
+          "page": 1,
+          "rrf_score": 0.03278688524590164,
+          "rerank_score": 0.9999611377716064
+        },
+        {
+          "id": "ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2:2:2",
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "rrf_score": 0.03200204813108039,
+          "rerank_score": 0.0020484456326812506
+        },
+        {
+          "id": "ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2:2:4",
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "rrf_score": 0.031754032258064516,
+          "rerank_score": 0.0015061836456879973
+        },
+        {
+          "id": "ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2:2:3",
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "rrf_score": 0.031009615384615385,
+          "rerank_score": 0.0014475658535957336
+        },
+        {
+          "id": "ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2:2:1",
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "rrf_score": 0.03125763125763126,
+          "rerank_score": 0.00012045468611177057
+        },
+        {
+          "id": "ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2:1:0",
+          "file": "01_产品与指标.pptx",
+          "page": 1,
+          "rrf_score": 0.015151515151515152,
+          "rerank_score": 0.00011633327085291967
+        },
+        {
+          "id": "81ec33251a4407b43e25616c9f9aa2db10501edaed207640c8e64e8c8a3117e7:2:1",
+          "file": "02_流程与术语.pptx",
+          "page": 2,
+          "rrf_score": 0.014925373134328358,
+          "rerank_score": 8.437044743914157e-05
+        },
+        {
+          "id": "ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2:3:5",
+          "file": "01_产品与指标.pptx",
+          "page": 3,
+          "rrf_score": 0.014492753623188406,
+          "rerank_score": 6.469823711086065e-05
+        }
+      ]
+    },
+    {
+      "question": "SLA 是什么意思？",
+      "file": "02_流程与术语.pptx",
+      "page": 3,
+      "answer": "Service Level Agreement",
+      "baseline_rank": 1,
+      "rerank_rank": 1,
+      "baseline_search_seconds": 0.0008777000002737623,
+      "retrieval_mode": "rerank",
+      "rerank_seconds": 3.796,
+      "rerank_fallback": false,
+      "rerank_reason": null,
+      "hits": [
+        {
+          "id": "81ec33251a4407b43e25616c9f9aa2db10501edaed207640c8e64e8c8a3117e7:3:2",
+          "file": "02_流程与术语.pptx",
+          "page": 3,
+          "rrf_score": 0.03278688524590164,
+          "rerank_score": 0.9987783432006836
+        },
+        {
+          "id": "ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2:1:0",
+          "file": "01_产品与指标.pptx",
+          "page": 1,
+          "rrf_score": 0.015873015873015872,
+          "rerank_score": 0.0030579620506614447
+        },
+        {
+          "id": "ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2:3:5",
+          "file": "01_产品与指标.pptx",
+          "page": 3,
+          "rrf_score": 0.016129032258064516,
+          "rerank_score": 0.0025363718159496784
+        },
+        {
+          "id": "81ec33251a4407b43e25616c9f9aa2db10501edaed207640c8e64e8c8a3117e7:1:0",
+          "file": "02_流程与术语.pptx",
+          "page": 1,
+          "rrf_score": 0.015151515151515152,
+          "rerank_score": 0.002031284850090742
+        },
+        {
+          "id": "ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2:2:4",
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "rrf_score": 0.014492753623188406,
+          "rerank_score": 0.0018172579584643245
+        },
+        {
+          "id": "ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2:2:3",
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "rrf_score": 0.014925373134328358,
+          "rerank_score": 0.0016680879052728415
+        },
+        {
+          "id": "81ec33251a4407b43e25616c9f9aa2db10501edaed207640c8e64e8c8a3117e7:2:1",
+          "file": "02_流程与术语.pptx",
+          "page": 2,
+          "rrf_score": 0.015625,
+          "rerank_score": 0.0015423570293933153
+        },
+        {
+          "id": "ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2:2:1",
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "rrf_score": 0.014705882352941176,
+          "rerank_score": 0.0013748148921877146
+        }
+      ]
+    },
+    {
+      "question": "2023 年 Alpha 保修期是多少？",
+      "file": "02_流程与术语.pptx",
+      "page": 2,
+      "answer": "18个月",
+      "baseline_rank": 1,
+      "rerank_rank": 1,
+      "baseline_search_seconds": 0.0009516000000076019,
+      "retrieval_mode": "rerank",
+      "rerank_seconds": 4.093,
+      "rerank_fallback": false,
+      "rerank_reason": null,
+      "hits": [
+        {
+          "id": "81ec33251a4407b43e25616c9f9aa2db10501edaed207640c8e64e8c8a3117e7:2:1",
+          "file": "02_流程与术语.pptx",
+          "page": 2,
+          "rrf_score": 0.03278688524590164,
+          "rerank_score": 0.999509334564209
+        },
+        {
+          "id": "ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2:1:0",
+          "file": "01_产品与指标.pptx",
+          "page": 1,
+          "rrf_score": 0.03225806451612903,
+          "rerank_score": 0.9971550703048706
+        },
+        {
+          "id": "ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2:2:2",
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "rrf_score": 0.031746031746031744,
+          "rerank_score": 0.011633854359388351
+        },
+        {
+          "id": "ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2:3:5",
+          "file": "01_产品与指标.pptx",
+          "page": 3,
+          "rrf_score": 0.015625,
+          "rerank_score": 0.00041267299093306065
+        },
+        {
+          "id": "ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2:2:3",
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "rrf_score": 0.015151515151515152,
+          "rerank_score": 0.00018613363499753177
+        },
+        {
+          "id": "ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2:2:4",
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "rrf_score": 0.014705882352941176,
+          "rerank_score": 0.0001332747924607247
+        },
+        {
+          "id": "81ec33251a4407b43e25616c9f9aa2db10501edaed207640c8e64e8c8a3117e7:3:2",
+          "file": "02_流程与术语.pptx",
+          "page": 3,
+          "rrf_score": 0.015384615384615385,
+          "rerank_score": 5.3503114031627774e-05
+        },
+        {
+          "id": "81ec33251a4407b43e25616c9f9aa2db10501edaed207640c8e64e8c8a3117e7:1:0",
+          "file": "02_流程与术语.pptx",
+          "page": 1,
+          "rrf_score": 0.014925373134328358,
+          "rerank_score": 4.3108539102831855e-05
+        }
+      ]
+    },
+    {
+      "question": "审批采购的金额门槛是多少？",
+      "file": "02_流程与术语.pptx",
+      "page": 1,
+      "answer": "5000 EUR",
+      "baseline_rank": 1,
+      "rerank_rank": 1,
+      "baseline_search_seconds": 0.0009319000000687083,
+      "retrieval_mode": "rerank",
+      "rerank_seconds": 3.959,
+      "rerank_fallback": false,
+      "rerank_reason": null,
+      "hits": [
+        {
+          "id": "81ec33251a4407b43e25616c9f9aa2db10501edaed207640c8e64e8c8a3117e7:1:0",
+          "file": "02_流程与术语.pptx",
+          "page": 1,
+          "rrf_score": 0.03278688524590164,
+          "rerank_score": 0.9998191595077515
+        },
+        {
+          "id": "ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2:2:4",
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "rrf_score": 0.014925373134328358,
+          "rerank_score": 0.0011866275453940034
+        },
+        {
+          "id": "ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2:2:2",
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "rrf_score": 0.015625,
+          "rerank_score": 0.0009097695583477616
+        },
+        {
+          "id": "ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2:2:3",
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "rrf_score": 0.015384615384615385,
+          "rerank_score": 0.0007200299296528101
+        },
+        {
+          "id": "ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2:1:0",
+          "file": "01_产品与指标.pptx",
+          "page": 1,
+          "rrf_score": 0.016129032258064516,
+          "rerank_score": 0.00037288377643562853
+        },
+        {
+          "id": "81ec33251a4407b43e25616c9f9aa2db10501edaed207640c8e64e8c8a3117e7:2:1",
+          "file": "02_流程与术语.pptx",
+          "page": 2,
+          "rrf_score": 0.015873015873015872,
+          "rerank_score": 0.00022713906946592033
+        },
+        {
+          "id": "ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2:3:5",
+          "file": "01_产品与指标.pptx",
+          "page": 3,
+          "rrf_score": 0.015151515151515152,
+          "rerank_score": 0.00020371229038573802
+        },
+        {
+          "id": "ce77637703577c121da7ad6ee182b71a31c287089365715b97a637e4c789a2a2:2:1",
+          "file": "01_产品与指标.pptx",
+          "page": 2,
+          "rrf_score": 0.014492753623188406,
+          "rerank_score": 0.00017896326608024538
+        }
+      ]
+    }
+  ],
+  "probes": [
+    {
+      "case": "中文",
+      "query": "Alpha 的保修期限是多少？",
+      "texts": [
+        "Beta 收入为 99 欧元。",
+        "Alpha 保修期限为24个月。",
+        "SLA 是服务水平协议。"
+      ],
+      "scores": [
+        0.0015351884067058563,
+        0.9999755620956421,
+        0.0007181782857514918
+      ],
+      "expected": 1,
+      "first": 1
+    },
+    {
+      "case": "English",
+      "query": "What is Alpha warranty?",
+      "texts": [
+        "Beta warranty is 12 months.",
+        "Alpha warranty is 24 months.",
+        "Alpha revenue is 120 EUR."
+      ],
+      "scores": [
+        0.45766833424568176,
+        0.9998087286949158,
+        0.16139018535614014
+      ],
+      "expected": 1,
+      "first": 1
+    },
+    {
+      "case": "numbers",
+      "query": "Alpha 2025年收入是多少欧元？",
+      "texts": [
+        "Alpha 2024年收入99.00 EUR。",
+        "Alpha 2025年增长率12.5%。",
+        "Alpha 2025年收入120.50 EUR。"
+      ],
+      "scores": [
+        0.9999338388442993,
+        0.7721657752990723,
+        0.9999915361404419
+      ],
+      "expected": 2,
+      "first": 2
+    },
+    {
+      "case": "historical",
+      "query": "2023 年 Alpha 保修期是多少？",
+      "texts": [
+        "现行 Alpha 保修期为24个月。",
+        "2023年 Alpha 保修期为18个月。",
+        "Beta 保修期为12个月。"
+      ],
+      "scores": [
+        0.9999088644981384,
+        0.999988853931427,
+        0.597396194934845
+      ],
+      "expected": 1,
+      "first": 1
+    }
+  ],
+  "knowledge_version": "4da51429ee474f747ebe",
+  "summary": {
+    "baseline": {
+      "recall_at_8": 1.0,
+      "mrr_at_8": 1.0
+    },
+    "rerank": {
+      "recall_at_8": 1.0,
+      "mrr_at_8": 1.0
+    },
+    "first_cold_rerank_seconds": 5.55,
+    "warm_mean_rerank_seconds": 3.8748181818181817
+  },
+  "regressions": [],
+  "pass": true,
+  "limitation": "Small artificial fixture set; no business-data accuracy claim. Scores are not calibrated confidence."
+}

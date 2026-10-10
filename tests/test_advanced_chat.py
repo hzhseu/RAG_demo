@@ -19,7 +19,7 @@ def test_advanced_accepts_general_knowledge_without_claiming_document_support(de
     client, headers = setup_client(deck, tmp_path)
     session = client.post('/api/sessions', headers=headers, json={'mode': 'advanced'}).json()
     if not has_evidence:
-        monkeypatch.setattr('nordrag.api.retrieve', lambda *args: [])
+        monkeypatch.setattr('nordrag.reranking.retrieve', lambda *args: [])
     answer = '通用知识补充：可以从原理、适用条件和限制三个方面分析。'
     monkeypatch.setattr(client.app.state.engines, 'stream', lambda *args: iter([answer]))
     done = next(e for e in chat_events(client, headers, session['id']) if e['type'] == 'done')
@@ -80,7 +80,7 @@ def test_advanced_retrieval_error_is_not_silently_replaced_by_general_knowledge(
     sid = client.post('/api/sessions', headers=headers, json={'mode': 'advanced'}).json()['id']
     def fail(*args):
         raise RuntimeError('检索失败')
-    monkeypatch.setattr('nordrag.api.retrieve', fail)
+    monkeypatch.setattr('nordrag.reranking.retrieve', fail)
     events = chat_events(client, headers, sid)
     assert any(e['type'] == 'error' and e['message'] == '检索失败' for e in events)
     assert not any(e['type'] == 'done' for e in events)

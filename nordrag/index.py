@@ -56,3 +56,20 @@ def retrieve(root: Path, query, vector, limit=8):
             c = json.loads(db.execute("SELECT data FROM chunks WHERE idx=?", (idx,)).fetchone()[0])
             results.append({**c, "score": scores[idx], "similarity": float(cosine[idx])})
         return results
+
+
+def deduplicate_candidates(candidates, limit=30):
+    """Keep RRF order and distinct provenance, dates, units and table rows."""
+    seen, result = set(), []
+    for chunk in candidates:
+        key = (chunk['doc_id'], chunk['page'], chunk['kind'], ' '.join(chunk['text'].split()))
+        if key not in seen:
+            seen.add(key)
+            result.append(chunk)
+            if len(result) >= limit:
+                break
+    return result
+
+
+def retrieve_candidates(root: Path, query, vector, limit=30):
+    return deduplicate_candidates(retrieve(root, query, vector, limit=60), limit)

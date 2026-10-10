@@ -1,0 +1,19 @@
+{
+  "long_input": {
+    "characters": 372029,
+    "scores": [
+      0.93914395570755
+    ],
+    "seconds": 62.55584960000033,
+    "original_preserved": true
+  },
+  "cancel": {
+    "seconds": 0.2887765999998919,
+    "process_stopped": true
+  },
+  "timeout": {
+    "seconds": 0.16234490000033475,
+    "process_stopped": true
+  },
+  "pass": true
+}
