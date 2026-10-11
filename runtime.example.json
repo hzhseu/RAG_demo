@@ -6,7 +6,7 @@
   "embedding_model_sha256": "",
   "reranker_model": "runtime/models/qwen3-reranker-0.6b-q8_0.gguf",
   "reranker_model_sha256": "22c9979ce4fbcdc5acdc310c6641c32797eff1aa980b8f7a2db8a8ea23429a48",
-  "reranker_candidates": 30,
+  "reranker_candidates": 16,
   "reranker_top_k": 8,
   "reranker_threads": 4,
   "reranker_context": 8192,

@@ -1,9 +1,10 @@
+from pathlib import Path
 import pytest
 from scripts import package_windows as packaging
 
 
 @pytest.mark.parametrize('build_fails', [False, True])
-def test_repackaging_preserves_entire_previous_release(tmp_path, monkeypatch, build_fails):
+def test_repackaging_without_history(tmp_path, monkeypatch, build_fails):
     root = tmp_path
     old = root / 'dist/NordRAG'
     (old / 'samples').mkdir(parents=True)
@@ -19,22 +20,27 @@ def test_repackaging_preserves_entire_previous_release(tmp_path, monkeypatch, bu
 
     def build(*args, **kwargs):
         # PyInstaller --noconfirm would recursively delete any existing target.
-        assert not old.exists(), 'Previous release must be preserved before PyInstaller runs'
+        assert old.exists()
+        command = args[0]
+        staging = Path(command[command.index('--distpath')+1])/'NordRAG'
+        assert staging != old
         if build_fails:
             raise RuntimeError('compiler failed')
-        old.mkdir()
-        (old / 'NordRAG.exe').write_bytes(b'application')
+        staging.mkdir(parents=True)
+        (staging / 'NordRAG.exe').write_bytes(b'application')
     monkeypatch.setattr(packaging.subprocess, 'run', build)
     if build_fails:
         with pytest.raises(RuntimeError, match='compiler failed'):
             packaging.main()
     else:
         packaging.main()
+        packaging.main()
         assert (old / 'samples/wireless.ragkb').read_bytes() == b'irreplaceable knowledge'
-    backups = list((root / 'dist/previous-releases').glob('NordRAG-*'))
-    assert len(backups) == 1
-    assert (backups[0] / 'samples/wireless.ragkb').read_bytes() == b'irreplaceable knowledge'
-    assert (backups[0] / 'personal-notes.txt').read_text() == 'user material'
+    assert not (root/'dist/previous-releases').exists()
+    assert (old/'personal-notes.txt').read_text() == 'user material'
+    assert (old/'samples/wireless.ragkb').read_bytes() == b'irreplaceable knowledge'
+    assert not list((root/'build').glob('package-*'))
+
 
 
 def test_conflicting_sample_is_preserved_without_overwriting_new_sample(tmp_path):

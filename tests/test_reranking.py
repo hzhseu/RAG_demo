@@ -6,6 +6,65 @@ import pytest
 from nordrag.index import create_index, retrieve
 
 
+@pytest.fixture
+def scoring_server(tmp_path):
+    """Record the real adapter's HTTP requests; model inference stays deterministic."""
+    import hashlib
+    import json
+    import httpx
+    from nordrag.reranking import Reranker
+    (tmp_path / 'rank.gguf').write_bytes(b'test')
+    ranker = Reranker(dict(root=str(tmp_path), reranker_model='rank.gguf',
+                          reranker_model_sha256=hashlib.sha256(b'test').hexdigest()))
+    calls = []
+    def handler(request):
+        body = json.loads(request.content)
+        calls.append((request.url.path, body))
+        if request.url.path == '/tokenize':
+            return httpx.Response(200, json={'tokens': list(map(ord, body['content']))})
+        if request.url.path == '/detokenize':
+            return httpx.Response(200, json={'content': ''.join(map(chr, body['tokens']))})
+        assert request.url.path == '/v1/rerank'
+        return httpx.Response(200, json={'results': [{'index': 0,
+            'relevance_score': len(body['documents'][0]) / 10000}]})
+    with httpx.Client(transport=httpx.MockTransport(handler), base_url='http://test') as client:
+        ranker.server.start = lambda: None
+        ranker.server.stop = lambda: None
+        ranker.server.client = client
+        yield ranker, calls
+
+
+def test_scoring_prepares_query_once_for_sixteen_documents(scoring_server):
+    ranker, calls = scoring_server
+    candidates = [chunk(i, 'D' * (i + 1), page=i + 1) for i in range(16)]
+    scores = ranker.score('question', candidates, threading.Event())
+    assert scores == [(i + 1) / 10000 for i in range(16)]
+    assert sum(path == '/tokenize' and body['content'] == 'question' for path, body in calls) == 1
+    assert len(calls) == 33
+
+
+def test_scoring_reuses_truncated_query_and_identical_inputs_only_within_request(scoring_server):
+    ranker, calls = scoring_server
+    ranker.server.cfg['context'] = 512
+    query = 'Q' * 300
+    candidates = [chunk(0, 'D' * 1000, page=1), chunk(1, 'D' * 1000, page=2),
+                  chunk(2, 'D' * 1000 + 'different tail', page=3)]
+    from copy import deepcopy
+    original = deepcopy(candidates)
+    for attempt in range(2):
+        start = len(calls)
+        scores = ranker.score(query, candidates, threading.Event())
+        batch = calls[start:]
+        requests = [body for path, body in batch if path == '/v1/rerank']
+        assert len(requests) == 1
+        assert requests[0]['query'] == 'Q' * 128
+        assert requests[0]['documents'] == ['D' * 128]
+        assert scores == [.0128] * 3
+        assert sum(path == '/tokenize' and body['content'] == query for path, body in batch) == 1
+        assert sum(path == '/tokenize' and body['content'] == 'D' * 1000 for path, body in batch) == 1
+        assert candidates == original
+
+
 def chunk(i, text, doc='a', page=1, kind='text'):
     return dict(id=str(i), doc_id=doc, page=page, kind=kind, text=text)
 

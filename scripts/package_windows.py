@@ -4,8 +4,7 @@ import json
 import shutil
 import subprocess
 import sys
-from datetime import datetime
-from uuid import uuid4
+from tempfile import TemporaryDirectory
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parent.parent
@@ -16,18 +15,22 @@ from nordrag.reranking import validate_reranker
 from nordrag.util import digest, write_json
 
 
-def preserve_previous_release(target):
-    if not target.exists():
-        return None
-    dist = ROOT.resolve() / 'dist'
-    backup = dist / 'previous-releases' / f'NordRAG-{datetime.now():%Y%m%d-%H%M%S}-{uuid4().hex[:8]}'
-    # Validate resolved paths before moving a directory on Windows.
-    if target.resolve() != dist / 'NordRAG' or not backup.resolve().is_relative_to(dist):
-        raise RuntimeError('Refusing to move a release outside the project dist directory')
-    backup.parent.mkdir(parents=True, exist_ok=True)
-    target.rename(backup)
-    print(f'Previous release preserved: {backup}', flush=True)
-    return backup
+def compile_in_place(command, name):
+    build = ROOT / 'build'
+    build.mkdir(exist_ok=True)
+    target = ROOT / 'dist' / name
+    if target.resolve() != ROOT.resolve() / 'dist' / name:
+        raise RuntimeError('Unsafe release target')
+    with TemporaryDirectory(prefix='package-', dir=build) as temporary:
+        subprocess.run(command + ['--distpath', temporary], cwd=ROOT, check=True)
+        staged = Path(temporary) / name
+        internal = target / '_internal'
+        if (staged / '_internal').exists() and internal.exists():
+            if internal.resolve() != target.resolve() / '_internal':
+                raise RuntimeError('Unsafe dependency directory')
+            shutil.rmtree(internal)
+        shutil.copytree(staged, target, dirs_exist_ok=True)
+    return target
 
 
 def restore_knowledge_files(previous, target):
@@ -94,21 +97,27 @@ def main():
         errors=preflight(load_config(),build=True)
         errors += [reason for entry in load_models(load_config()).values() if (reason:=unavailable_reason(entry['cfg']))]
         if errors:raise SystemExit('\n'.join(errors))
-    previous = preserve_previous_release(ROOT/'dist/NordRAG')
-    subprocess.run([sys.executable,'-m','PyInstaller','--noconfirm','--onedir','--name','NordRAG','--paths',str(ROOT),'--collect-all','uvicorn','--collect-all','pptx','--hidden-import','tkinter','--add-data',f'{ROOT / "nordrag/ocr_worker.py"};nordrag',str(ROOT/'scripts/entry.py')],cwd=ROOT,check=True)
-    target=ROOT/'dist/NordRAG'
-    (target/'NordRAG.exe').rename(target/'nord-chat.exe')
+    target = compile_in_place([sys.executable,'-m','PyInstaller','--noconfirm','--onedir','--name','NordRAG','--paths',str(ROOT),'--collect-all','uvicorn','--collect-all','pptx','--hidden-import','tkinter','--add-data',f'{ROOT / "nordrag/ocr_worker.py"};nordrag',str(ROOT/'scripts/entry.py')], 'NordRAG')
+    (target/'NordRAG.exe').replace(target/'nord-chat.exe')
     shutil.copy2(target/'nord-chat.exe',target/'kb-builder.exe')
     shutil.copytree(ROOT/'frontend/dist',target/'frontend/dist',dirs_exist_ok=True)
     shutil.copy2(ROOT/'README.md',target/'README.md')
-    shutil.copy2(ROOT/'chat-models.json',target/'chat-models.json')
+    shipped = json.loads((ROOT/'chat-models.json').read_text(encoding='utf-8-sig'))
+    catalog = target/'chat-models.json'
+    if catalog.exists():
+        existing = json.loads(catalog.read_text(encoding='utf-8-sig'))
+        models = {m['id']: m for m in shipped['models']}
+        models.update({m['id']: m for m in existing['models']})
+        shipped = {**shipped, **existing, 'models': list(models.values())}
+    write_json(catalog, shipped)
     shutil.copytree(ROOT/'docs',target/'docs',dirs_exist_ok=True)
     sample = ROOT/'artifacts/delivery-demo.ragkb'
     if not sample.exists(): sample = ROOT/'artifacts/final-demo.ragkb'
     if not sample.exists(): sample = ROOT/'artifacts/real-test.ragkb'
     if sample.exists():
         (target/'samples').mkdir(exist_ok=True)
-        shutil.copy2(sample,target/'samples/demo.ragkb')
+        if not (target/'samples/demo.ragkb').exists():
+            shutil.copy2(sample,target/'samples/demo.ragkb')
         shutil.copytree(ROOT/'artifacts/fixtures/pptx',target/'samples/pptx',dirs_exist_ok=True)
         (target/'Try-demo.cmd').write_text('@echo off\r\n"%~dp0nord-chat.exe" --knowledge "%~dp0samples\\demo.ragkb"\r\n',encoding='ascii')
     if not args.app_only:
@@ -119,8 +128,6 @@ def main():
         shutil.copy2(ROOT/'runtime.json',target/'runtime.json')
     else:
         (target/'APP-ONLY-NOT-OFFLINE-RELEASE.txt').write_text('Development build: runtime assets not included.',encoding='utf-8')
-    restore_knowledge_files(previous, target)
-    restore_model_catalogs(previous,target)
     write_json(target/'checksums.json',{p.relative_to(target).as_posix():digest(p) for p in target.rglob('*') if p.is_file() and p.name!='checksums.json'})
     print(f'Built: {target}')
 

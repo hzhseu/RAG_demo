@@ -51,18 +51,27 @@ def rank_candidates(candidates, scores, limit=8):
     return [{**candidates[i], 'rerank_score': float(scores[i])} for i in indices[:limit]]
 
 
-def scoring_texts(query, text, tokenize, detokenize, context=8192):
-    # Reserve template and special tokens. Truncate only the scoring copy.
+def _scoring_query(query, tokenize, detokenize, context):
+    # Reserve template and special tokens. Prepare once for the whole request.
     q = tokenize(query)
     q_limit = min(2048, (context - 256) // 2)
     if len(q) > q_limit:
         query = detokenize(q[:q_limit])
         q = tokenize(query)
+    return query, context - len(q) - 256
+
+
+def _scoring_document(text, tokenize, detokenize, budget):
     tokens = tokenize(text)
-    budget = context - len(q) - 256
     if len(tokens) > budget:
         text = detokenize(tokens[:budget])
-    return query, text
+    return text
+
+
+def scoring_texts(query, text, tokenize, detokenize, context=8192):
+    # Truncate only the scoring copy; original evidence remains unchanged.
+    query, budget = _scoring_query(query, tokenize, detokenize, context)
+    return query, _scoring_document(text, tokenize, detokenize, budget)
 
 
 class Reranker:
@@ -126,9 +135,19 @@ class Reranker:
                 return post('/tokenize', {'content': text, 'add_special': False})['tokens']
             def detokenize(tokens):
                 return post('/detokenize', {'tokens': tokens})['content']
-            scores = []
+            q, budget = _scoring_query(query, tokenize, detokenize, context)
+            scores, documents, scored = [], {}, {}
             for candidate in candidates:
-                q, text = scoring_texts(query, candidate['text'], tokenize, detokenize, context)
+                check()
+                original = candidate['text']
+                if original not in documents:
+                    documents[original] = _scoring_document(original, tokenize, detokenize, budget)
+                text = documents[original]
+                # Request-local reuse: identical model inputs get the same score,
+                # while separate source pages retain their own evidence entries.
+                if text in scored:
+                    scores.append(scored[text])
+                    continue
                 # One pair per request bounds the server batch/context footprint.
                 data = post('/v1/rerank', {'query': q, 'documents': [text], 'top_n': 1})
                 rows = data.get('results')
@@ -137,6 +156,7 @@ class Reranker:
                 score = rows[0].get('relevance_score')
                 if type(score) not in (float, int) or not math.isfinite(score):
                     raise RerankError('invalid_scores')
+                scored[text] = score
                 scores.append(score)
             check()
             return scores
@@ -165,7 +185,7 @@ def retrieve_evidence(root, query, vector, engines, cancel, mode='rerank', progr
     try:
         progress()
         cfg = getattr(engines, 'base_cfg', getattr(engines, 'cfg', {}))
-        count, final = cfg.get('reranker_candidates', 30), cfg.get('reranker_top_k', 8)
+        count, final = cfg.get('reranker_candidates', 16), cfg.get('reranker_top_k', 8)
         if type(count) is not int or type(final) is not int or not 1 <= final <= count <= 60:
             raise RerankError('config_invalid')
         unique = deduplicate_candidates(candidates, count)

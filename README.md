@@ -93,7 +93,7 @@ node --test --test-isolation=none frontend/tests/apiClient.test.mjs
 
 下载脚本仅供开发准备；正式程序不联网获取模型。OCR 使用独立的 Windows Python + PaddleOCR 运行目录，LibreOffice 使用解包后的本地转换组件。完整准备步骤与验收边界见 `docs/DELIVERY.md`。
 
-重新打包前，脚本会将整个旧 `dist/NordRAG` 保存到 `dist/previous-releases/NordRAG-时间戳-标识`，构建失败也保留备份。旧包中的 `.ragkb` 会复制回新包；遇到同名不同内容时，旧知识库保存在新包的 `preserved-knowledge` 下。建议日常知识库存放在独立的 `knowledge_bases` 或其他资料目录；迁移时同时携带需要的知识库文件。
+打包不再保存历史发布版本。临时编译成功后就地更新当前程序，保留知识库与自定义模型配置；编译失败不修改当前目录。更新时请关闭程序，复制失败可重新打包。
 
 ## 项目结构与独立测试
 
